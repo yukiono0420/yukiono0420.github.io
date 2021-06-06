@@ -1,5 +1,5 @@
 baseURL = "https://example.com"
-title = "Yuki Challenge"
+title = "ラビットチャレンジレポート提出用サイト"
 theme = "etch"
 languageCode = "ja"
 enableInlineShortcodes = true
