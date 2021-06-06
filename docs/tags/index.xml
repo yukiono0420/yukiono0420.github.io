@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on ラビットチャレンジレポート提出用サイト</title>
-    <link>https://example.com/tags/</link>
+    <link>https://yukiono0420.github.io/tags/</link>
     <description>Recent content in Tags on ラビットチャレンジレポート提出用サイト</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
     
-	<atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://yukiono0420.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     
     <item>
       <title>応用数学レポート</title>
-      <link>https://example.com/%E5%BF%9C%E7%94%A8%E6%95%B0%E5%AD%A6%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</link>
+      <link>https://yukiono0420.github.io/%E5%BF%9C%E7%94%A8%E6%95%B0%E5%AD%A6%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</link>
       <pubDate>Mon, 07 Jun 2021 00:56:22 +0900</pubDate>
       
-      <guid>https://example.com/%E5%BF%9C%E7%94%A8%E6%95%B0%E5%AD%A6%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</guid>
+      <guid>https://yukiono0420.github.io/%E5%BF%9C%E7%94%A8%E6%95%B0%E5%AD%A6%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</guid>
       <description>第1章　線形代数 スカラーとベクトルの違いや行列の基本計算方法（四則演算）の習得後、行列の固有値・固有ベクトルの算出方法について習得。 また、正方行列以外の行列に対する固有値・固有ベクトルの算出方法として、特異値・特異ベクトルの算出方法について習得。 最後に、アインシュタインの画像を用いて、特異値分解が実際に利用されている場面について紹介があり、特異値分解が実際の画像処理の場面でどのように活用されているかを習得する事ができた。
 第2章　確率・統計 基本的な集合の概念や確率の基本的な求め方について習得した後、条件付き確率について習得した。 「洗濯物を干している日に雨が降る確率」と「洗濯物を干しているかつ雨が降る確率」が異なるという演習の問題を通じて、条件付き確率と独立な事象の同時確率の違いについて理解を深めた。 ベイズの定理（講義内ではベイズ則）については、結果から原因を推定する際に利用されていると認識している。
 また、標本分散と不偏分散の違いの部分での説明は、講師が口頭にてわかりやすく説明。 不偏分散と標本分散では、分母がn-1とnで異なるが、これは分散が標本平均と各標本との差分の二乗を合計しているからで、標本平均を導出する際にすでに自由度が1減少していることから、不偏分散では分母が標本数のnではなくn-1が採用されたと理解した。最後に、様々な分布の説明では、ベルヌーイ分布・二項分布・正規分布などの具体的な数式について習得した。
