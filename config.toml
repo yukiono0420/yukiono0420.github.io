@@ -1,9 +1,10 @@
 baseurl = "https://example.com"
-title = "Hugo Tanka Theme Demo"
+title = "Yuki Challenge!!!"
 author = "Nan Xiao"
 canonifyurls = true
-languagecode = "en"
-theme = "hugo-tanka"
+languagecode = "ja"
+theme = "Yuki"
+publishDir = "docs"  ######################### 追加
 
 enableEmoji = true
 hasCJKLanguage = false
@@ -14,7 +15,7 @@ pygmentscodefences = true
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\\.md$"]
 
 [params]
-  sitename = "Hugo Tanka Theme"
+  sitename = "yuki challenge"
   faviconfile = "images/favicon.png"
   highlightjs = true
   highlightjslanguages = ["r", "python", "stan"]
@@ -47,3 +48,4 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\
     name = "Subscribe"
     url = "/index.xml"
     weight = 5
+
