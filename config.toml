@@ -13,6 +13,7 @@ publishDir = "docs"
   copyright = "Copyright © 2021 Yuki Ono"
   dark = "auto"
   highlight = true
+  mathjaxStyle = "mathjax-style.css"
 
 [menu]
   [[menu.main]]

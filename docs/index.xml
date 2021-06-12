@@ -6,9 +6,25 @@
     <description>Recent content in Home on ラビットチャレンジレポート提出用サイト</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Mon, 07 Jun 2021 00:56:22 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 12 Jun 2021 01:18:19 +0900</lastBuildDate>
     
 	<atom:link href="https://yukiono0420.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+    <item>
+      <title>機械学習レポート</title>
+      <link>https://yukiono0420.github.io/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</link>
+      <pubDate>Sat, 12 Jun 2021 01:18:19 +0900</pubDate>
+      
+      <guid>https://yukiono0420.github.io/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</guid>
+      <description>線形回帰モデル（単回帰モデル） 講義内容サマリ 回帰問題 回帰モデルではある入力値（離散あるいは連続）から出力値（連続）を予測する問題であり、線形関数（直線）で予測するものを線形回帰（単回帰）という。
+ 回帰で扱うデータ  入力値（各要素を説明変数または特徴量と呼ぶ）  m次元ベクトル（m=1の場合はスカラー）   出力値（目的変数）  スカラー値（目的変数）      入力値（説明変数） $$ \begin{eqnarray*} \boldsymbol{x} &amp;amp;=&amp;amp; (x_1, x_2, \cdots, x_m)^{T} \\ \end{eqnarray*} $$
+出力値（目的変数） $$ \begin{eqnarray*} y \in \mathbb{R}^m \\ \end{eqnarray*} $$
+線形回帰モデル 線形回帰モデルとは、機械学習モデルの一つであり、教師あり学習の回帰手法である。 入力値に対して$m$次元パラメータの線型結合を出力するモデルである。 パラメータとは、モデルに含まれる推定すべき未知のパラメータであり、特徴量が予測値に対してどのように影響を与えるかを決定する重み値の集合である。 線形回帰モデルでは、この未知のパラメータに対して、最小二乗法により推定する。
+パラメータ $$ \begin{eqnarray*} \boldsymbol{w} &amp;amp;=&amp;amp; (w_1, w_2, \cdots, w_m)^{T} \in \mathbb{R}^m \\ \end{eqnarray*} $$
+線型結合 $$ \begin{eqnarray*} \hat{y} = \boldsymbol{w}^T \boldsymbol{x} + w_0 = \sum^{m}_{j=1} w_j x_j + w_0 \\ \end{eqnarray*} $$</description>
+    </item>
     
     
     

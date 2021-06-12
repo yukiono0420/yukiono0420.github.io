@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E検定チャレンジ用">
+    
+    <link rel="shortcut icon" href="https://yukiono0420.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>機械学習レポート</title>
+</head>
+<body><head>
+    
+	
+		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: { equationNumbers: { autoNumber: "AMS" },
+                extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+    });
+
+    MathJax.Hub.Queue(function() {
+        
+        
+        
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+    MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://yukiono0420.github.iocss/mathjax-style.css">
+
+	
+</head>
+
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>機械学習レポート</h1>
+            <div>
+                <time>June 12, 2021</time>
+                </div>
+    </header><h1 id="線形回帰モデル単回帰モデル">線形回帰モデル（単回帰モデル）</h1>
+<h2 id="講義内容サマリ">講義内容サマリ</h2>
+<h3 id="回帰問題">回帰問題</h3>
+<p>回帰モデルではある入力値（離散あるいは連続）から出力値（連続）を予測する問題であり、線形関数（直線）で予測するものを線形回帰（単回帰）という。</p>
+<ul>
+<li>回帰で扱うデータ
+<ul>
+<li>入力値（各要素を説明変数または特徴量と呼ぶ）
+<ul>
+<li>m次元ベクトル（m=1の場合はスカラー）</li>
+</ul>
+</li>
+<li>出力値（目的変数）
+<ul>
+<li>スカラー値（目的変数）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>入力値（説明変数）</strong>
+<code>$$ \begin{eqnarray*} \boldsymbol{x} &amp;=&amp; (x_1, x_2, \cdots, x_m)^{T} \\ \end{eqnarray*} $$</code></p>
+<p><strong>出力値（目的変数）</strong>
+<code>$$ \begin{eqnarray*} y \in \mathbb{R}^m \\ \end{eqnarray*} $$</code></p>
+<h3 id="線形回帰モデル">線形回帰モデル</h3>
+<p>線形回帰モデルとは、機械学習モデルの一つであり、教師あり学習の回帰手法である。
+入力値に対して$m$次元パラメータの線型結合を出力するモデルである。
+パラメータとは、モデルに含まれる推定すべき未知のパラメータであり、特徴量が予測値に対してどのように影響を与えるかを決定する重み値の集合である。
+線形回帰モデルでは、この未知のパラメータに対して、最小二乗法により推定する。</p>
+<p><strong>パラメータ</strong>
+<code>$$ \begin{eqnarray*} \boldsymbol{w} &amp;=&amp; (w_1, w_2, \cdots, w_m)^{T} \in \mathbb{R}^m \\ \end{eqnarray*} $$</code></p>
+<p><strong>線型結合</strong>
+<code>$$ \begin{eqnarray*} \hat{y} = \boldsymbol{w}^T \boldsymbol{x} + w_0 = \sum^{m}_{j=1} w_j x_j + w_0 \\ \end{eqnarray*} $$</code></p>
+<h3 id="データの分割とモデルの汎化性能測定">データの分割とモデルの汎化性能測定</h3>
+<p>教師用データについて、学習用データと検証用データにそれぞれ分割する。モデルの汎化性能（Generalization）を測定するためで、データへの当てはまりの良さではなく、未知のインプットデータに対しての精度の高さを測定する。</p>
+<ul>
+<li>学習用データ：機械学習モデルの学習に利用するデータ</li>
+<li>検証用データ：学習済みモデルの制度を検証するためのデータ</li>
+</ul>
+<h3 id="線形回帰モデルパラメータの推定">線形回帰モデルパラメータの推定</h3>
+<p>モデルパラメータの推定は、以下の平均二乗誤差MSE$_{train}$（残渣平方和：データとモデル出力の二乗誤差の和）を最小化するパラメータを探索する。
+<code>$$ \begin{eqnarray*} \rm{MSE}_{train} = \frac{1}{n_{train}} \sum^{n_{train}}_{i=1} (\hat{y}^{(train)}_i - y^{(train)}_i)^2 \\  \end{eqnarray*} $$</code></p>
+<p>MSEを最小とするような$w$を求めるため、以下の方程式を解く。
+\begin{eqnarray*}
+\frac{\partial}{\partial w}\rm{MST_{train}} = 0 \<br>
+\end{eqnarray*}
+左辺について行列変形を実施する。
+<code>\begin{eqnarray*} \frac{\partial}{\partial w}\rm{MST_{train}} &amp;=&amp;  \frac{\partial}{\partial w} \left(\frac{1}{n_{\rm{train}}} \sum^{n_{\rm{(train)}}}_{i=1} \left(\hat{y}^{\rm{(train)}}_i - y^{\rm{(train)}}_i\right)^2 \right) \\ &amp;=&amp; \frac{\partial}{\partial \boldsymbol{w}} \left( \left(X^{n_{\rm{(train)}}} \boldsymbol{w} - \boldsymbol{y}^{(\rm{train})} \right)^T \left(X^{n_{\rm{(train)}}} \boldsymbol{w} - \boldsymbol{y}^{(\rm{(train)})} \right) \right) \\ &amp;=&amp; 0  \\ \end{eqnarray*}</code>
+これを解くと以下の回帰係数の式が得られる。</p>
+<ul>
+<li>
+<p>回帰係数
+\begin{eqnarray*}
+\boldsymbol{\hat{w}} &amp;=&amp; \left({X^{\rm{(train)}}}^{T} X^{\rm{(train)}}\right)^{-1} {X^{\rm{(train)}}}^{T} \boldsymbol{y}^{\rm{(train)}} \<br>
+\end{eqnarray*}</p>
+</li>
+<li>
+<p>予測値
+\begin{eqnarray*}
+\boldsymbol{\hat{y}} &amp;=&amp; X\left({X^{\rm{(train)}}}^{T} X^{\rm{(train)}}\right)^{-1} {X^{\rm{(train)}}}^{T} \boldsymbol{y}^{\rm{(train)}} \<br>
+\end{eqnarray*}</p>
+</li>
+</ul>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Yuki Ono
+</footer>
+</body>
+</html>
