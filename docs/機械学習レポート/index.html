@@ -279,6 +279,70 @@ P(y_1,y_2,\cdots, y_n;p) = \prod^{n}_{i=1} p^{y_i} (1-p)^{1-y_i} \
 \begin{eqnarray*}
 \boldsymbol{w} (k + 1 ) = \boldsymbol{w}^k + \eta (y_i - p_i) \boldsymbol{x}_i \<br>
 \end{eqnarray*}</p>
+<p>&lt;実装演習結果&gt;</p>
+<p>ロジスティック回帰の実習演習として、Kaggleが提供する「タイタニック号の生存者」に関するデータセットを用いて、ロジスティック回帰を実装した。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#タイタニックデータセットのインポート</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&#34;/content/drive/MyDrive/Colab Notebooks/機械学習/非線形回帰/train.csv&#34;</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&#34;/content/drive/MyDrive/Colab Notebooks/機械学習/非線形回帰/test.csv&#34;</span><span class="p">)</span>
+</code></pre></div><p>データ欠損状況を確認して、欠損しているデータについては平均値で補間を実施する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#欠損状況の確認</span>
+<span class="k">def</span> <span class="nf">kesson_table</span><span class="p">(</span><span class="n">df</span><span class="p">):</span> 
+        <span class="n">null_val</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">kesson_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">null_val</span><span class="p">,</span> <span class="n">percent</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">kesson_table_ren_columns</span> <span class="o">=</span> <span class="n">kesson_table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="s1">&#39;欠損数&#39;</span><span class="p">,</span> <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">kesson_table_ren_columns</span>
+ 
+<span class="n">kesson_table</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+<span class="n">kesson_table</span><span class="p">(</span><span class="n">test_df</span><span class="p">)</span>
+</code></pre></div><p><figure class="center"><img src="/image/train_%e6%ac%a0%e6%90%8d.png" width="200" height="300"/><figcaption>
+            <h4>trainデータの欠損状況</h4>
+        </figcaption>
+</figure>
+
+<figure class="center"><img src="/image/test_%e6%ac%a0%e6%90%8d.png" width="200" height="300"/><figcaption>
+            <h4>testデータの欠損状況</h4>
+        </figcaption>
+</figure>
+</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Ageは説明変数へ利用するため、欠損については中央値で補完する。</span>
+<span class="c1">#年齢の欠損値を男女の平均年齢で補間</span>
+<span class="n">age_train_mean</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Sex&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">fillage</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">Sex</span> <span class="o">==</span> <span class="s1">&#39;male&#39;</span><span class="p">:</span>
+          <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">age_train_mean</span><span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">Sex</span> <span class="o">==</span> <span class="s1">&#39;female&#39;</span><span class="p">:</span>
+          <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">age_train_mean</span><span class="p">[</span><span class="s1">&#39;female&#39;</span><span class="p">])</span>
+<span class="c1">#補間を実行する</span>
+<span class="n">train_df</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fillage</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="n">inplace</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="c1">#Ageについて補間されたことを確認</span>
+<span class="n">train_df</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/train_hokan.png" width="200" height="300"/><figcaption>
+            <h4>trainデータのAgeの補間結果を確認</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#テスト用データのAgeについても同様に補間</span>
+<span class="n">age_test_mean</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Sex&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> 
+<span class="n">test_df</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="n">test_df</span><span class="o">.</span><span class="n">Age</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fillage</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1">#テスト用データのFareには1件欠損存在するため、同様に平均値で補間</span>
+<span class="n">Fare_test_mean</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Fare&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> 
+<span class="n">test_df</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1">#Fareについて補間されたことを確認</span>
+<span class="n">test_df</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/test_hokan.png" width="200" height="300"/><figcaption>
+            <h4>testデータのAgeの補間結果を確認</h4>
+        </figcaption>
+</figure>
+
 <h1 id="主成分分析">主成分分析</h1>
 <p>&lt;講義内容サマリ&gt;</p>
 <p>多変量データの持つ構造をより少数個の指標に圧縮し、小さな次元の情報に要約することで、全体の把握が容易になる。そのためには各変数のもつ共通の要素を抜き出して要約をすれば良い。
