@@ -261,6 +261,63 @@ MSE_{test} = \frac{1}{n_{test}} \sum^{n_{test}}_{i=1} \left( \hat{y}_i^{(test)} 
 <li>最も良い評価値を持つチューイングパラメータを持つ組み合わせを「いいモデルのパラメータ」として採用する
 <code>$$ \begin{eqnarray*} \boldsymbol{m} &amp;=&amp; (m_1, m_2, \cdots, m_c)^T \\ \boldsymbol{\lambda} &amp;=&amp; (\lambda_1, \lambda_2, \cdots, \lambda_c)^T \end{eqnarray*} $$</code></li>
 </ul>
+<p>&lt;実装演習結果&gt;</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="c1">#seaborn設定</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+<span class="c1">#背景変更</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&#34;darkgrid&#34;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;grid.linestyle&#39;</span><span class="p">:</span> <span class="s1">&#39;--&#39;</span><span class="p">})</span>
+<span class="c1">#大きさ(スケール変更)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="s2">&#34;paper&#34;</span><span class="p">)</span>
+
+<span class="n">n</span><span class="o">=</span><span class="mi">100</span>
+
+<span class="k">def</span> <span class="nf">true_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="mi">48</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="mi">218</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">315</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="o">+</span><span class="mi">145</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">4</span>
+    <span class="k">return</span> <span class="n">z</span> 
+
+<span class="k">def</span> <span class="nf">linear_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">z</span> <span class="c1"># 真の関数からノイズを伴うデータを生成</span>
+
+<span class="c1"># 真の関数からデータ生成</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">true_func</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># 　ノイズを加える</span>
+<span class="n">noise</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> 
+<span class="n">target</span> <span class="o">=</span> <span class="n">target</span>  <span class="o">+</span> <span class="n">noise</span>
+
+<span class="c1"># ノイズ付きデータを描画</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;NonLinear Regression&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div><p>KernelRidgeを使用して非線形関数でフィッティングを行う。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sklearn.kernel_ridge</span> <span class="kn">import</span> <span class="n">KernelRidge</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">KernelRidge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.0002</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="n">p_kridge</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p_kridge</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;kernel ridge&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="c1">#plt.plot(data, p, color=&#39;orange&#39;, marker=&#39;o&#39;, linestyle=&#39;-&#39;, linewidth=1, markersize=6)</span>
+</code></pre></div><figure class="center"><img src="/image/hisenkei.png" width="500" height="300"/><figcaption>
+            <h4>非線形関数でのフィッティング結果</h4>
+        </figcaption>
+</figure>
+
 <h1 id="ロジスティック回帰モデル">ロジスティック回帰モデル</h1>
 <p>&lt;講義内容サマリ&gt;</p>
 <p>ロジスティック線形回帰モデルは、分類問題を解くための教師あり機械学習モデルである。
@@ -486,6 +543,39 @@ Confustion matrix:
 <p>&lt;サマリ&gt;</p>
 <h4 id="k近傍法">k近傍法</h4>
 <p>k近傍法とは、クラスタ分析手法の1つであり、与えられた学習データをプロットしておき、未知のデータに対して距離が近い順に任意のk個を取得し、その多数決でデータが属するクラスを推定するもの。k近傍法には、近傍点の数・データポイント間の距離、という2つの重要なパラメータがある。説明変数が多い場合は、学習速度が遅くなる傾向があるため、次元削減等のデータ前処理が必要な場合がある。</p>
+<p>&lt;実装演習結果&gt;</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+ 
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">mglearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">make_forge</span><span class="p">()</span>
+ 
+<span class="c1"># train_test_splitで分割する</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+ 
+<span class="c1"># インスタンスの生成、3つの近傍点で投票を行う</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+ 
+<span class="c1"># 学習する</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div><p>どのような分類がされたかについて、確認をする。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+ 
+<span class="k">for</span> <span class="n">n_neighbors</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="n">axes</span><span class="p">):</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="c1"># plot_2d_separator: 色で二分割</span>
+    <span class="n">mglearn</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">plot_2d_separator</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">4</span><span class="p">)</span>
+    <span class="c1"># discrete_scatter: 要素を分布</span>
+    <span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;{} neighbor(s)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_neighbors</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;feature 0&#34;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;feature 1&#34;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/k-kinbou.png" width="1000" height="200"/><figcaption>
+            <h4>k-means法によるクラスタ分析の結果</h4>
+        </figcaption>
+</figure>
+
 <h4 id="k-means法">k-means法</h4>
 <p>k-means法は教師なし学習のクラスタ分析手法の1つで、最も広く用いられているクラスタリング手法の1つである。k-meansは任意にポイントした重心からの距離によってクラスタリングを実施する。</p>
 <ul>
@@ -498,6 +588,36 @@ Confustion matrix:
 </ul>
 </li>
 </ul>
+<p>&lt;実装演習結果&gt;
+scikit learnにて、クラスタリング用のデータを作成する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="ch">#!pip install mglearn</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_blobs</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">mglearn</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_blobs</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div><p>クラスタセンタを2と4に指定して、クラスタに分割した結果を表示する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1">#クラスタセンサを2つに指定</span>
+<span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">assignments</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">labels_</span>
+
+<span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">assignments</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1">#クラスタセンサを4つに指定</span>
+<span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">assignments</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">labels_</span>
+
+<span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">assignments</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div><figure class="center"><img src="/image/k-means.png" width="1000" height="300"/><figcaption>
+            <h4>k-means法によるクラスタ分析の結果</h4>
+        </figcaption>
+</figure>
+
 <h1 id="サポートベクタマシン">サポートベクタマシン</h1>
 <p>&lt;サマリ&gt;</p>
 <p>サポートベクタマシンでは、正しい分類基準を見つけるために、「マージン最大化」という考え方を用いる。マージンとは、「判別する境界とデータの距離」のことを言う。なお、境界線と最も近くにあるデータを「サポートベクタ」と呼ぶ。このサポートベクタとのマージンを最大化するように境界を引き、クラスタ分類を行う。サポートベクタ以外のデータの値が多少変化したとしても、分類のための境界線の位置は一切変わらない。SVMは様々なkでーたセットに対してうまく機能するモデルであり、データにわずかな特徴量しかない場合でも、複雑な境界を生成することが可能。</p>
@@ -519,6 +639,93 @@ Confustion matrix:
 </ul>
 </li>
 </ul>
+<p>&lt;実装演習結果&gt;
+scikit learnにて、クラスタリング用のデータを作成する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">mglearn</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_blobs</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">mglearn</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_blobs</span><span class="p">(</span><span class="n">centers</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">%</span> <span class="mi">2</span>
+
+<span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;Feature 0&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Feature 1&#34;</span><span class="p">)</span>
+</code></pre></div><figure class="center"><img src="/image/svm1.png" width="450" height="300"/><figcaption>
+            <h4>分類用テストデータ</h4>
+        </figcaption>
+</figure>
+
+<p>まずは線形にてクラスタ分類を試みる。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="n">linear_svn</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">mglearn</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">plot_2d_separator</span><span class="p">(</span><span class="n">linear_svn</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;Feature 0&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Feature 1&#34;</span><span class="p">)</span>
+</code></pre></div><p><figure class="center"><img src="/image/svm2.png" width="450" height="300"/><figcaption>
+            <h4>分類用テストデータを線形にて分類した結果</h4>
+        </figcaption>
+</figure>
+
+全くクラスタ分類できていないことがわかる。
+このままでは分離ができないため、入力特徴量を拡張子、3次元のデータへと拡張子、サポートベクタマシーンにて評価する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">X_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">])</span>
+
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span><span class="p">,</span> <span class="n">axes3d</span>
+
+<span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes3D</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">elev</span> <span class="o">=</span> <span class="o">-</span><span class="mi">152</span><span class="p">,</span> <span class="n">azim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">26</span><span class="p">)</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">y</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;feature0&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;feature1&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s2">&#34;feature1 ** 2&#34;</span><span class="p">)</span>
+</code></pre></div><figure class="center"><img src="/image/svm3.png" width="450" height="300"/><figcaption>
+            <h4>分類用テストデータを3次元に拡張</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">linear_svm_3d</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_new</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">coef</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">linear_svm_3d</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">linear_svm_3d</span><span class="o">.</span><span class="n">intercept_</span>
+
+<span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes3D</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">elev</span> <span class="o">=</span> <span class="o">-</span><span class="mi">152</span><span class="p">,</span> <span class="n">azim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">26</span><span class="p">)</span>
+<span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X_new</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">X_new</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span> <span class="mi">2</span> <span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X_new</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">X_new</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span> <span class="mi">2</span> <span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+
+<span class="n">XX</span><span class="p">,</span> <span class="n">YY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+<span class="n">ZZ</span> <span class="o">=</span> <span class="p">(</span><span class="n">coef</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">XX</span> <span class="o">+</span> <span class="n">coef</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">YY</span> <span class="o">+</span> <span class="n">intercept</span><span class="p">)</span> <span class="o">/</span> <span class="o">-</span><span class="n">coef</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">XX</span><span class="p">,</span> <span class="n">YY</span><span class="p">,</span> <span class="n">ZZ</span><span class="p">,</span> <span class="n">rstride</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">cstride</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;feature0&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;feature1&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s2">&#34;feature1 ** 2&#34;</span><span class="p">)</span>
+</code></pre></div><p><figure class="center"><img src="/image/svm4.png" width="450" height="300"/><figcaption>
+            <h4>3次元に拡張したデータにSVMを適用した結果</h4>
+        </figcaption>
+</figure>
+
+2次元では線形分離できなかったデータを3次元に拡張することで、SVMを使用して線形モデル（平面）にて分離することが可能となった。最後に、線形モデルを3次元に適用した結果を2次元に落として決定境界を描写する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">ZZ</span> <span class="o">=</span> <span class="n">YY</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">dec</span> <span class="o">=</span> <span class="n">linear_svm_3d</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">XX</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">YY</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">ZZ</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">XX</span><span class="p">,</span> <span class="n">YY</span><span class="p">,</span> <span class="n">dec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">XX</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="n">dec</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dec</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="o">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="o">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:</span> <span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;feature0&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;feature1&#34;</span><span class="p">)</span>
+</code></pre></div><figure class="center"><img src="/image/svm5.png" width="750" height="300"/><figcaption>
+            <h4>2次元上での決定境界</h4>
+        </figcaption>
+</figure>
+
 </article>
 
         </main><footer id="footer">
