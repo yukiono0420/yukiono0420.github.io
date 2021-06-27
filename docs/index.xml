@@ -6,9 +6,31 @@
     <description>Recent content in Home on ラビットチャレンジレポート提出用サイト</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Sat, 12 Jun 2021 01:18:19 +0900</lastBuildDate>
+    <lastBuildDate>Sun, 27 Jun 2021 16:15:35 +0900</lastBuildDate>
     
 	<atom:link href="https://yukiono0420.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+    <item>
+      <title>深層学習前半レポート</title>
+      <link>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E5%89%8D%E5%8D%8A%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</link>
+      <pubDate>Sun, 27 Jun 2021 16:15:35 +0900</pubDate>
+      
+      <guid>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E5%89%8D%E5%8D%8A%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</guid>
+      <description>1. 深層学習day1レポート 1.0 ニューラルネットワークの全体像 確認テスト1 ディープラーニングは、結局何をやろうとしているか2行以内で述べよ。また、次の中のどの値の最適化が最終目的か。全て選べ。（1分） ①入力値[ X] ②出力値[ Y]③重み[W]④バイアス[b]⑤総入力[u] ⑥中間層入力[ z]⑦学習率[ρ]
+回答 多数の中間層を用いることにより、入力から目的とする数値を出力する変換を行う数学モデルを構築すること。③と④。
+確認テスト2 次のネットワークを紙にかけ。
+入力層 2ノード1層
+中間層 ３ノード2層
+出力層 1ノード1層（5分）
+NN全体像確認テスト
+回答  ネットワーク   1.1 入力層〜中間層 ある入力の特徴の入力を各ノードに代入し、その入力に対して重みwとバイアスbを考慮し、中間層のノードに対して出力を行う。動物の写真判定の例では、入力として「動物の体長」や「動物の足の長さ」など、写真を判定するのに必要な情報をインプットする。
+確認テスト3 この図式に動物分類の実例を入れてみよう。（3分）  確認テスト問題   回答  確認テスト回答   確認テスト4 この数式をPythonで書け。（2分）
+回答  確認テスト問題   u = np.dot(x,W) + b 確認テスト5 1-1のファイルから中間層の出力を定義しているソースを抜き出せ。（2分）
+回答 # 中間層出力 z = functions_dnn.relu(u) print_vec(&amp;#34;中間層出力&amp;#34;, z) 実装演習 単層単ユニットにおける実装演習結果を示す。
+#functionsモジュールを呼び出すことができなかったため、functionsをfunctions_dnnに読み替えて実装 import numpy as np #from common import functions_dnn import functions_dnn def print_vec(text, vec): print(&amp;#34;*** &amp;#34; + text + &amp;#34; ***&amp;#34;) print(vec) #print(&amp;#34;shape: &amp;#34; + str(x.</description>
+    </item>
     
     
     

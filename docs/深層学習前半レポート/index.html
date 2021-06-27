@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E検定チャレンジ用">
+    
+    <link rel="shortcut icon" href="https://yukiono0420.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>深層学習前半レポート</title>
+</head>
+<body><head>
+    
+	
+		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: { equationNumbers: { autoNumber: "AMS" },
+                extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+    });
+
+    MathJax.Hub.Queue(function() {
+        
+        
+        
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+    MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://yukiono0420.github.iocss/mathjax-style.css">
+
+	
+</head>
+
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>深層学習前半レポート</h1>
+            <div>
+                <time>June 27, 2021</time>
+                </div>
+    </header><h1 id="1-深層学習day1レポート">1. 深層学習day1レポート</h1>
+<h2 id="10-ニューラルネットワークの全体像">1.0 ニューラルネットワークの全体像</h2>
+<h5 id="確認テスト1">確認テスト1</h5>
+<p>ディープラーニングは、結局何をやろうとしているか2行以内で述べよ。また、次の中のどの値の最適化が最終目的か。全て選べ。（1分）
+①入力値[ X] ②出力値[ Y]③重み[W]④バイアス[b]⑤総入力[u] ⑥中間層入力[ z]⑦学習率[ρ]</p>
+<h5 id="回答">回答</h5>
+<p>多数の中間層を用いることにより、入力から目的とする数値を出力する変換を行う数学モデルを構築すること。③と④。</p>
+<h5 id="確認テスト2">確認テスト2</h5>
+<p>次のネットワークを紙にかけ。<br>
+入力層 2ノード1層<br>
+中間層 ３ノード2層<br>
+出力層 1ノード1層（5分）<br>
+NN全体像確認テスト</p>
+<h5 id="回答-1">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%882.png" width="600" height="300"/><figcaption>
+            <h4>ネットワーク</h4>
+        </figcaption>
+</figure>
+
+<h2 id="11-入力層中間層">1.1 入力層〜中間層</h2>
+<p>ある入力の特徴の入力を各ノードに代入し、その入力に対して重みwとバイアスbを考慮し、中間層のノードに対して出力を行う。動物の写真判定の例では、入力として「動物の体長」や「動物の足の長さ」など、写真を判定するのに必要な情報をインプットする。</p>
+<h5 id="確認テスト3">確認テスト3</h5>
+<p>この図式に動物分類の実例を入れてみよう。（3分）
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+</p>
+<h5 id="回答-2">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%9b%9e%e7%ad%94.png" width="300" height="600"/><figcaption>
+            <h4>確認テスト回答</h4>
+        </figcaption>
+</figure>
+
+<h5 id="確認テスト4">確認テスト4</h5>
+<p>この数式をPythonで書け。（2分）</p>
+<h5 id="回答-3">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span>
+</code></pre></div><h5 id="確認テスト5">確認テスト5</h5>
+<p>1-1のファイルから中間層の出力を定義しているソースを抜き出せ。（2分）</p>
+<h5 id="回答-4">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># 中間層出力</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力&#34;</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習">実装演習</h3>
+<p>単層単ユニットにおける実装演習結果を示す。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#functionsモジュールを呼び出すことができなかったため、functionsをfunctions_dnnに読み替えて実装</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c1">#from common import functions_dnn</span>
+<span class="kn">import</span> <span class="nn">functions_dnn</span>
+
+
+<span class="k">def</span> <span class="nf">print_vec</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;*** &#34;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&#34; ***&#34;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="c1">#print(&#34;shape: &#34; + str(x.shape))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+
+<span class="c1"># 順伝播（単層・単ユニット）</span>
+
+<span class="c1"># 重み</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">]])</span>
+
+<span class="c1">## 試してみよう_配列の初期化</span>
+<span class="c1">#W = np.zeros(2)</span>
+<span class="c1">#W = np.ones(2)</span>
+<span class="c1">#W = np.random.rand(2)</span>
+<span class="c1">#W = np.random.randint(5, size=(2))</span>
+
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み&#34;</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+
+
+<span class="c1"># バイアス</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="c1">## 試してみよう_数値の初期化</span>
+<span class="c1">#b = np.random.rand() # 0~1のランダム数値</span>
+<span class="c1">#b = np.random.rand() * 10 -5  # -5~5のランダム数値</span>
+
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス&#34;</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># 入力値</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;入力&#34;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+
+<span class="c1"># 総入力</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力&#34;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+<span class="c1"># 中間層出力</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力&#34;</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+</code></pre></div><p>[出力結果]<br>
+*** 重み ***
+[[0.1]
+[0.2]]<br>
+*** バイアス ***
+0.5<br>
+*** 入力 ***
+[2 3]<br>
+*** 総入力 ***
+[1.3]<br>
+*** 中間層出力 ***
+[1.3]</p>
+<h2 id="12-活性化関数">1.2 活性化関数</h2>
+<p>ニューラルネットワークにおいて、次のそうへの出力の大きさを決める&quot;非線形な関数&quot;のことを、活性化関数という。
+入力値の値によっては、次の層への信号のON/OFFや強弱を定める働きを持っている。</p>
+<ul>
+<li>
+<p>中間層用の活性化関数</p>
+<ul>
+<li>
+<p>ReLU関数<br>
+今最も使われている活性化関数でで、勾配消失問題の回避とスパース化に貢献することでいい成果をもたらしている。</p>
+</li>
+<li>
+<p>シグモイド（ロジスティック）関数<br>
+0~1を緩やかに変化する関数で、ステップ関数ではON/OFFしかない状態に対し、信号の強弱を伝えられるようになり、予想ニューラルネットワーク普及のきっかけとなった。</p>
+</li>
+<li>
+<p>ステップ関数<br>
+閾値を超えたら発火する関数でさり、出力は常に1か0である。パーセプトロン（NNの前進）で利用された関数。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>出力層用の活性化関数</p>
+<ul>
+<li>ソフトマックス関数</li>
+<li>恒等写像</li>
+<li>シグモイド関数（ロジスティック）関数</li>
+</ul>
+</li>
+</ul>
+<h5 id="確認テスト1-1">確認テスト1</h5>
+<p>線形と非線形の違いを図に書いて、簡易に説明せよ。</p>
+<h5 id="回答-5">回答</h5>
+<p>線形：いわゆる比例の関係。二次元上では直線で表すことができる。<br>
+非線形：二次元上で直線で表すことができない関数。</p>
+<h5 id="確認テスト2-1">確認テスト2</h5>
+<p>配布されたソースコードより、該当する箇所を抜き出せ。</p>
+<h5 id="回答-6">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.2.2%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習-1">実装演習</h3>
+<p>common関数内に存在する活性化関数について、実装演習を行う。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># 中間層の活性化関数</span>
+<span class="c1"># シグモイド関数（ロジスティック関数）</span>
+<span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># ReLU関数</span>
+<span class="k">def</span> <span class="nf">relu</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># ステップ関数（閾値0）</span>
+<span class="k">def</span> <span class="nf">step_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> 
+
+</code></pre></div><h2 id="13-出力層">1.3 出力層</h2>
+<h3 id="誤差関数">誤差関数</h3>
+<p>出力層では、ニューラルネットワークによって得られた出力結果（出力値）と訓練データ（正解値）との差分を誤差関数として定義している。</p>
+<p>\begin{eqnarray*}
+E_n(\boldsymbol{w}) = \frac{1}{2} \sum^J_{j=1} (y_j - d_j)^2 = \frac{1}{2} ||(\boldsymbol{y} - \boldsymbol{d})||^2
+\end{eqnarray*}</p>
+<h3 id="全結合nn---出力層の活性化関数">全結合NN - 出力層の活性化関数</h3>
+<p>出力層と中間層の活性化関数の違いとして以下の特徴があるため、出力層と中間層で利用される活性化関数は異なっている。</p>
+<ul>
+<li>
+<p>値の強弱</p>
+<ul>
+<li>中間層：閾値の前後で信号の強弱を調整</li>
+<li>出力層：信号の大きさ（比率）はそのままに変換</li>
+</ul>
+</li>
+<li>
+<p>確率出力</p>
+<ul>
+<li>分類問題の場合、出力層の出力は0~1の範囲に限定し、総和を1とする必要がある。</li>
+</ul>
+</li>
+</ul>
+<h5 id="確認テスト1-2">確認テスト1</h5>
+<p>なぜ引き算ではなく二乗するかを述べよ、また、下式の1/2はどういう意味を持つか述べよ。
+\begin{eqnarray*}
+E_n(\boldsymbol{w}) = \frac{1}{2} \sum^J_{j=1} (y_j - d_j)^2 = \frac{1}{2} ||(\boldsymbol{y} - \boldsymbol{d})||^2
+\end{eqnarray*}</p>
+<h5 id="回答-7">回答</h5>
+<p>二乗しない場合、正負の値が混在するものを総和するため、誤差としての特徴を抽出するのが難しいため。<br>
+1/2の意味は、逆伝播法にて誤差関数を微分して重みをアップデートする際に、計算が容易になるため。</p>
+<h5 id="確認テスト2-2">確認テスト2</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.3.2%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-8">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># ソフトマックス関数</span>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># ミニバッチとしてデータを取扱う際に利用する</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>        
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># オーバーフロー対策</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># ①を求めている、分母が③で分子が②</span>
+    <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>
+
+  <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># オーバーフロー対策</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="c1"># ①を求めている、分母が③で分子が②</span>
+</code></pre></div><h5 id="確認テスト3-1">確認テスト3</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.3.3%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-9">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># クロスエントロピー</span>
+<span class="k">def</span> <span class="nf">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>    <span class="c1"># 1次元の場合。</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>    <span class="c1"># (1, 要素数)のベクトルへ変形する</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>    <span class="c1"># (1, 要素数)のベクトルへ変形する</span>
+
+  <span class="c1"># 教師データが one-hot-vector の場合、正解ラベルのインデックスに変換</span>
+  <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 最大値のインデックス値を取得</span>
+
+  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># バッチサイズを定義</span>
+  <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">d</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span> <span class="o">/</span> <span class="n">batch_size</span> 
+  <span class="c1"># バッチサイズ分、対数関数に与えている。</span>
+</code></pre></div><h3 id="実装演習-2">実装演習</h3>
+<p>出力層での活性化関数についての実装結果を以下に記載。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># 出力層の活性化関数</span>
+<span class="c1"># ソフトマックス関数</span>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># オーバーフロー対策</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># ソフトマックスとクロスエントロピーの複合関数</span>
+<span class="k">def</span> <span class="nf">softmax_with_loss</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># 誤差関数</span>
+<span class="c1"># 平均二乗誤差</span>
+<span class="k">def</span> <span class="nf">mean_squared_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="c1"># クロスエントロピー</span>
+<span class="k">def</span> <span class="nf">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        
+    <span class="c1"># 教師データがone-hot-vectorの場合、正解ラベルのインデックスに変換</span>
+    <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+             
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">d</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">))</span> <span class="o">/</span> <span class="n">batch_size</span>
+</code></pre></div><h2 id="14-勾配降下法">1.4 勾配降下法</h2>
+<p>深層学習の目的としては、学習を通して誤差関数を最小とするネットワークを作成することである。これはつまり、誤差関数$E(\boldsymbol{w})$を最小化するパラメータ$\boldsymbol{w}$を見つけることである。その際に、勾配降下法を用いて、パラメータ$\boldsymbol{w}$を求める。</p>
+<ul>
+<li>勾配降下法</li>
+<li>確率的勾配降下法</li>
+<li>ミニバッチ勾配降下法</li>
+</ul>
+<p>勾配降下法で利用されているアルゴリズムとして、以下のものがある。</p>
+<ul>
+<li>Momentoum</li>
+<li>AdaGrad</li>
+<li>AdaDelta</li>
+<li>Adam</li>
+</ul>
+<p>勾配降下法では、学習率$\epsilon$によって学習の効率が大きく異なる。学習率が大きすぎた場合、最小値にいつまでもたどり着かず発散してしまうが、学習率が小さい場合発散することはないが、小さすぎると収束するまでに時間がかかってしまう。そのため、発散せずかつ時間をそれほど要さないような適切な学習率を設定することが、勾配降下法では必要とされる。</p>
+<h5 id="確認テスト1-3">確認テスト1</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.4.1%e5%95%8f%e9%a1%8c.png" width="600" height="150"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-10">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">network</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">-=</span> <span class="n">learning_rate</span><span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<span class="n">grad</span> <span class="o">=</span> <span class="n">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="n">S4</span><span class="p">)</span>
+</code></pre></div><h5 id="確認テスト2-3">確認テスト2</h5>
+<p>オンライン学習とは何か2行でまとめよ（2分）</p>
+<h5 id="回答-11">回答</h5>
+<p>ニューラルネットワークの入力に対して、その都度データを与えて学習をさせる方法。学習データが入ってくる都度パラメータを更新していき、学習を進めていく。一方、バッチ学習は、一度に全ての学習データを投入する手法。</p>
+<h3 id="実装演習-3">実装演習</h3>
+<p>誤差逆伝播法における実装演習と合わせて実施。</p>
+<h2 id="15-誤差逆伝播法">1.5 誤差逆伝播法</h2>
+<p>誤差逆伝播法では、算出された誤差を出力層側から順に微分し、前の層前の層へと伝播していく。最小限の計算で各パラメータでの微分値を解析的に計算する手法である。計算結果（=誤差）から微分を逆算することで、不要な再帰的計算を避けて微分を算出することができる。</p>
+<h5 id="確認テスト1-4">確認テスト1</h5>
+<p>誤差逆伝播法では不要な再帰的処理を避ける事が出来る。既に行った計算結果を保持しているソースコードを抽出せよ。</p>
+<h5 id="回答-12">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python">    <span class="c1"># １回使った微分を使いまわしている。</span>
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">W2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_sigmoid</span><span class="p">(</span><span class="n">z1</span><span class="p">)</span>
+
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">delta1</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+</code></pre></div><h5 id="確認テスト2-4">確認テスト2</h5>
+<p>2つの空欄に該当するソースコードを探せ</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">delta2</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_mean_squared_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習-4">実装演習</h3>
+<p>誤差逆伝播法を利用して重みを更新しているソースに関する演習を実施する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">functions_dnn</span> <span class="c1"># functions.pyをリネームしている</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="k">def</span> <span class="nf">print_vec</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;*** &#34;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&#34; ***&#34;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="c1">#print(&#34;shape: &#34; + str(x.shape))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+
+<span class="c1"># ウェイトとバイアスを設定</span>
+<span class="c1"># ネートワークを作成</span>
+<span class="k">def</span> <span class="nf">init_network</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### ネットワークの初期化 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+    <span class="p">])</span>
+
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+    <span class="p">])</span>
+
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+    
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">network</span>
+
+<span class="c1"># 順伝播</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 順伝播開始 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">W1</span><span class="p">,</span> <span class="n">W2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span>
+    <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span>
+    
+    <span class="n">u1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span>
+    <span class="n">z1</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u1</span><span class="p">)</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="n">W2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">u2</span><span class="p">)</span>
+    
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力1&#34;</span><span class="p">,</span> <span class="n">u1</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力1&#34;</span><span class="p">,</span> <span class="n">z1</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力2&#34;</span><span class="p">,</span> <span class="n">u2</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;出力1&#34;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;出力合計: &#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">z1</span>
+
+<span class="c1"># 誤差逆伝播</span>
+<span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">##### 誤差逆伝播開始 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">grad</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">W1</span><span class="p">,</span> <span class="n">W2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span>
+    <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span>
+    <span class="c1">#  出力層でのデルタ</span>
+    <span class="n">delta2</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">d_sigmoid_with_loss</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="c1">#  b2の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#  W2の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+    <span class="c1">#  中間層でのデルタ</span>
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">W2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">d_relu</span><span class="p">(</span><span class="n">z1</span><span class="p">)</span>
+    <span class="c1"># b1の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#  W1の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta1</span><span class="p">)</span>
+        
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_dE/du2&#34;</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_dE/du2&#34;</span><span class="p">,</span> <span class="n">delta1</span><span class="p">)</span>
+
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_重み1&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;W1&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_重み2&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;W2&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_バイアス1&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;b1&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_バイアス2&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;b2&#34;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">grad</span>
+    
+<span class="c1"># 訓練データ</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="c1"># 目標出力</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="c1">#  学習率</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">network</span> <span class="o">=</span>  <span class="n">init_network</span><span class="p">()</span>
+<span class="n">y</span><span class="p">,</span> <span class="n">z1</span> <span class="o">=</span> <span class="n">forward</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># 誤差</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">grad</span> <span class="o">=</span> <span class="n">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">):</span>
+    <span class="n">network</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 結果表示 #####&#34;</span><span class="p">)</span>    
+
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 更新後パラメータ #####&#34;</span><span class="p">)</span> 
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">])</span>
+</code></pre></div><p>[出力結果]</p>
+<h5 id="ネットワークの初期化">ネットワークの初期化</h5>
+<p>*** 重み1 ***
+[[0.1 0.3 0.5]
+[0.2 0.4 0.6]]</p>
+<p>*** 重み2 ***
+[[0.1 0.4]
+[0.2 0.5]
+[0.3 0.6]]</p>
+<p>*** バイアス1 ***
+[0.1 0.2 0.3]</p>
+<p>*** バイアス2 ***
+[0.1 0.2]</p>
+<h5 id="順伝播開始">順伝播開始</h5>
+<p>*** 総入力1 ***
+[[1.2 2.5 3.8]]</p>
+<p>*** 中間層出力1 ***
+[[1.2 2.5 3.8]]</p>
+<p>*** 総入力2 ***
+[[1.86 4.21]]</p>
+<p>*** 出力1 ***
+[[0.08706577 0.91293423]]</p>
+<p>出力合計: 1.0</p>
+<h5 id="誤差逆伝播開始">誤差逆伝播開始</h5>
+<p>*** 偏微分_dE/du2 ***
+[[ 0.08706577 -0.08706577]]</p>
+<p>*** 偏微分_dE/du2 ***
+[[-0.02611973 -0.02611973 -0.02611973]]</p>
+<p>*** 偏微分_重み1 ***
+[[-0.02611973 -0.02611973 -0.02611973]
+[-0.13059866 -0.13059866 -0.13059866]]</p>
+<p>*** 偏微分_重み2 ***
+[[ 0.10447893 -0.10447893]
+[ 0.21766443 -0.21766443]
+[ 0.33084994 -0.33084994]]</p>
+<p>*** 偏微分_バイアス1 ***
+[-0.02611973 -0.02611973 -0.02611973]</p>
+<p>*** 偏微分_バイアス2 ***
+[ 0.08706577 -0.08706577]</p>
+<h5 id="結果表示">結果表示</h5>
+<h5 id="更新後パラメータ">更新後パラメータ</h5>
+<p>*** 重み1 ***
+[[0.1002612  0.3002612  0.5002612 ]
+[0.20130599 0.40130599 0.60130599]]</p>
+<p>*** 重み2 ***
+[[0.09895521 0.40104479]
+[0.19782336 0.50217664]
+[0.2966915  0.6033085 ]]</p>
+<p>*** バイアス1 ***
+[0.1002612 0.2002612 0.3002612]</p>
+<p>*** バイアス2 ***
+[0.09912934 0.20087066]</p>
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Yuki Ono
+</footer>
+</body>
+</html>
