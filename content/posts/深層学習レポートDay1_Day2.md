@@ -1,11 +1,9 @@
 ---
-title: "深層学習前半レポート"
+title: "深層学習レポートDay1Day2"
 date: 2021-06-27T16:15:35+09:00
 draft: false
 mathjax: true
 ---
-
-
 
 
 # 1. 深層学習day1レポート
@@ -537,11 +535,828 @@ print_vec("バイアス2", network['b2'])
 
 
 
+# 2. 深層学習day2レポート
+# 2.1 勾配消失問題について
+誤差逆伝播法が下位置に進んでいくにつれて、勾配が緩やかになっていく。これは、勾配降下法による重みパラメータの更新では、逆伝播の中に活性化関数の微分が複数回登場するためである。sigmoid関数の微分では、最大値が0.25であり大きな値では出力の変化量が微小であることから、sigmoid関数の微分が複数回行われた後は、勾配が微小になってしまうことがある。その結果、下位（入力側）パラメータはほとんど変化しないため、訓練が最適解に収束しなくなってしまう。
+
+* 勾配消失の解決法
+  * 活性化関数の選択：ReLU関数
+  * 重みの初期値設定
+  * バッチ正規化
+
+### 2.1.1 ReLU関数
+今最も使われている活性化関数。勾配消失問題の回避とスパース化に貢献することで良い結果を残している。
+※スパース化：中間層の重みパラメータのうち、必要な重みのみが選択的に抽出されること
+
+### 2.1.2 重みの初期値設定
+#### Xavier
+重みの要素を前のレイヤのノード数の平方根で割る初期値の設定方法。  
+（重みはベクトルのため、１つの要素には個性があるため、個性の洗濯が起きる
+
+#### He
+重みの要素を前のレイヤのノード数のルートで割ったものに、$\sqrt{2}$を乗算して初期値を設定する。
+
+### 2.1.3 バッチ正規化
+バッチ正規化とは、ミニバッチ単位で、入力値のデータの偏りを抑制する手法である。バッチ正規化は、活性化関数に値を渡す前後に、バッチ正規化の処理を孕んだ層を加える。
+
+
+##### 確認テスト1
+重みの初期値に0を設定すると、どのような問題が発生するか。簡潔に説明せよ。
+
+##### 回答
+すべての重みの値が均一に更新されることになることから、各ノードに設定されている重みをもつ意味がなく、正しい学習を行うことができなくなる。
+
+##### 確認テスト2
+一般的に考えられるバッチ正規化の効果を2点あげよ。
+
+##### 回答
+* ニューラルネットワークの学習中に中間層の重みの更新が安定化する（学習が安定化し学習スピードが向上する）
+* 過学習の抑制
+
+### 実装演習
+まず、多層構造ニューラルネットワーククラスを作成する。
+```python
+import numpy as np
+import layers
+from collections import OrderedDict
+import functions_dnn
+from mnist import load_mnist
+import matplotlib.pyplot as plt
+
+
+class MultiLayerNet:
+    '''
+    input_size: 入力層のノード数
+    hidden_size_list: 隠れ層のノード数のリスト
+    output_size: 出力層のノード数
+    activation: 活性化関数
+    weight_init_std: 重みの初期化方法
+    '''
+    def __init__(self, input_size, hidden_size_list, output_size, activation='relu', weight_init_std='relu'):
+        self.input_size = input_size
+        self.output_size = output_size
+        self.hidden_size_list = hidden_size_list
+        self.hidden_layer_num = len(hidden_size_list)
+        self.params = {}
+
+        # 重みの初期化
+        self.__init_weight(weight_init_std)
+
+        # レイヤの生成, sigmoidとreluのみ扱う
+        activation_layer = {'sigmoid': layers.Sigmoid, 'relu': layers.Relu}
+        self.layers = OrderedDict() # 追加した順番に格納
+        for idx in range(1, self.hidden_layer_num+1):
+            self.layers['Affine' + str(idx)] = layers.Affine(self.params['W' + str(idx)], self.params['b' + str(idx)])
+            self.layers['Activation_function' + str(idx)] = activation_layer[activation]()
+
+        idx = self.hidden_layer_num + 1
+        self.layers['Affine' + str(idx)] = layers.Affine(self.params['W' + str(idx)], self.params['b' + str(idx)])
+
+        self.last_layer = layers.SoftmaxWithLoss()
+
+    def __init_weight(self, weight_init_std):
+        all_size_list = [self.input_size] + self.hidden_size_list + [self.output_size]
+        for idx in range(1, len(all_size_list)):
+            scale = weight_init_std
+            if str(weight_init_std).lower() in ('relu', 'he'):
+                scale = np.sqrt(2.0 / all_size_list[idx - 1])
+            elif str(weight_init_std).lower() in ('sigmoid', 'xavier'):
+                scale = np.sqrt(1.0 / all_size_list[idx - 1])
+
+            self.params['W' + str(idx)] = scale * np.random.randn(all_size_list[idx-1], all_size_list[idx])
+            self.params['b' + str(idx)] = np.zeros(all_size_list[idx])
+
+    def predict(self, x):
+        for layer in self.layers.values():
+            x = layer.forward(x)
+
+        return x
+
+    def loss(self, x, d):
+        y = self.predict(x)
+
+        weight_decay = 0
+        for idx in range(1, self.hidden_layer_num + 2):
+            W = self.params['W' + str(idx)]
+
+        return self.last_layer.forward(y, d) + weight_decay
+
+    def accuracy(self, x, d):
+        y = self.predict(x)
+        y = np.argmax(y, axis=1)
+        if d.ndim != 1 : d = np.argmax(d, axis=1)
+
+        accuracy = np.sum(y == d) / float(x.shape[0])
+        return accuracy
+
+    def gradient(self, x, d):
+        # forward
+        self.loss(x, d)
+
+        # backward
+        dout = 1
+        dout = self.last_layer.backward(dout)
+
+        layers = list(self.layers.values())
+        layers.reverse()
+        for layer in layers:
+            dout = layer.backward(dout)
+
+        # 設定
+        grad = {}
+        for idx in range(1, self.hidden_layer_num+2):
+            grad['W' + str(idx)] = self.layers['Affine' + str(idx)].dW
+            grad['b' + str(idx)] = self.layers['Affine' + str(idx)].db
+
+        return grad
+```
+勾配消失問題の具体例として、活性化関数にsigmoid関数を使用してみる。
+```python
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True, one_hot_label=True)
+
+print("データ読み込み完了")
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='sigmoid', weight_init_std=0.01)
+
+iters_num = 2000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.1
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    # 勾配
+    grad = network.gradient(x_batch, d_batch)
+    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        network.params[key] -= learning_rate * grad[key]
+    
+    loss = network.loss(x_batch, d_batch)
+    train_loss_list.append(loss)
+    
+    if (i + 1) % plot_interval == 0:
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_test.append(accr_test)        
+        accr_train = network.accuracy(x_batch, d_batch)
+        accuracies_train.append(accr_train)
+
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))
+        
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+下図のように、学習を進めても正答率が上がっておらず、勾配消失問題を引き起こしていることがわかる。
+{{< figure src="/image/勾配消失例.png" title="勾配消失している場合の正答率" class="center" width="500" height="300" >}}
+
+
+続いて、活性化関数をReLU関数にして学習を実施する。
+```python
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True, one_hot_label=True)
+
+print("データ読み込み完了")
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='relu', weight_init_std=0.01)
+
+iters_num = 2000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.1
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    # 勾配
+    grad = network.gradient(x_batch, d_batch)
+    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        network.params[key] -= learning_rate * grad[key]
+    
+    loss = network.loss(x_batch, d_batch)
+    train_loss_list.append(loss)
+    
+    if (i + 1) % plot_interval == 0:
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_test.append(accr_test)        
+        accr_train = network.accuracy(x_batch, d_batch)
+        accuracies_train.append(accr_train)
+
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))
+        
+        
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+下図のように、学習を進めるにつれて正答率が上がっており、勾配消失問題が解消していることがわかる。
+{{< figure src="/image/勾配消失解消.png" title="勾配消失が解消している場合の正答率" class="center" width="500" height="300" >}}
+
+
+続いて、初期設定方法にXavierを使用し、再び学習をする。
+```python
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True, one_hot_label=True)
+
+print("データ読み込み完了")
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='sigmoid', weight_init_std='Xavier')
+
+iters_num = 2000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.1
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    # 勾配
+    grad = network.gradient(x_batch, d_batch)
+    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        network.params[key] -= learning_rate * grad[key]
+    
+    loss = network.loss(x_batch, d_batch)
+    train_loss_list.append(loss)
+    
+    if (i + 1) % plot_interval == 0:
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_test.append(accr_test)        
+        accr_train = network.accuracy(x_batch, d_batch)
+        accuracies_train.append(accr_train)
+        
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))
+        
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+
+下図のように、Xavierを使うと、学習が緩やかに進んでいくことがわかる。
+{{< figure src="/image/Xavier.png" title="Xavier" class="center" width="500" height="300" >}}
+
+
+## 2.2 学習率最適化手法について
+学習率を学習が進めていくにつれて変化させていくのが、学習率最適化手法である。
+学習率最適化手法には以下の4つの手法がある。
+
+* モメンタム
+* AdaGrad
+* RMSProp
+* Adam
+
+### 2.2.1 モメンタム
+誤差をパラメータで微分したものと学習率の積を減算した後、現在の重みに前回の重みを減算した値と慣性の積を加算する。
+モメンタムのメリットは以下の2点。
+* 局所的最適解にはならず、大域的最適解となる。
+* 谷間についてから最も低い位置に行くまでの時間が早い
+
+### 2.2.2 AdaGrad
+誤差をパラメータで微分したものと、再定義した学習率の積を減算する。
+AdaGradのメリットは、勾配が緩やかな斜面に対して、最適解に近づけるという点があるが、一方学習率が徐々に小さくなるため、鞍点問題を引き起こすことがある。
+
+### 2.2.3 RMSProp
+誤差をパラメータで微分したものと、再定義した学習率の積を減算する。AdaGradの改良版である。
+RMSPropのメリットは以下の2点。
+* 局所的最適解にはならず、大域的最適解となる。
+* ハイパーパラメータの調整が必要な場合が少ない。
+
+### 2.2.4 Adam
+Adamはモメンタムの「過去の勾配の指数関数的減衰平均」と、RMSPropの「過去の勾配の2乗の指数関数的減衰平均」をそれぞれ孕んだ最適化アルゴリズムである。AdamはモメンタムとRMSPropのそれぞれのメリットを孕んだアルゴリズムのため、広く使用されている。
+
+##### 確認テスト
+モメンタム・AdaGrad・RMSPropの特徴をそれぞれ簡潔に説明せよ。
+
+##### 回答
+上記の2.2.1〜2.2.3を参照。
+
+### 実装演習
+実装演習レポートには、Adamの実装結果を記載する。
+まずは、SGD（確率的勾配降下法）にて学習をさせた結果を記載する。学習をしてもうまくいっていないことがわかる。
+```python
+import numpy as np
+from collections import OrderedDict
+import layers
+from mnist import load_mnist
+import matplotlib.pyplot as plt
+from multi_layer_net import MultiLayerNet
+
+
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True, one_hot_label=True)
+
+print("データ読み込み完了")
+
+# batch_normalizationの設定 =======================
+# use_batchnorm = True
+use_batchnorm = False
+# ====================================================
+
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='sigmoid', weight_init_std=0.01,
+                       use_batchnorm=use_batchnorm)
+
+iters_num = 1000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.01
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    # 勾配
+    grad = network.gradient(x_batch, d_batch)
+    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        network.params[key] -= learning_rate * grad[key]
+        
+        loss = network.loss(x_batch, d_batch)
+        train_loss_list.append(loss)
+    
+    
+    if (i + 1) % plot_interval == 0:
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_test.append(accr_test)        
+        accr_train = network.accuracy(x_batch, d_batch)
+        accuracies_train.append(accr_train)
+        
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))
+
+        
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+{{< figure src="/image/SGD.png" title="SGDで学習を実施してもうまく学習がされない" class="center" width="500" height="300" >}}
+
+ここからは、Adamにて学習を実施する。Adamにて実施すると学習が進むにつれて、正答率が上がっており、正しく学習が進んでいることがわかる。
+```python
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True, one_hot_label=True)
+
+print("データ読み込み完了")
+
+# batch_normalizationの設定 =======================
+# use_batchnorm = True
+use_batchnorm = False
+# ====================================================
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[40, 20], output_size=10, activation='sigmoid', weight_init_std=0.01,
+                       use_batchnorm=use_batchnorm)
+
+iters_num = 1000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate = 0.01
+beta1 = 0.9
+beta2 = 0.999
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    # 勾配
+    grad = network.gradient(x_batch, d_batch)
+    if i == 0:
+        m = {}
+        v = {}
+    learning_rate_t  = learning_rate * np.sqrt(1.0 - beta2 ** (i + 1)) / (1.0 - beta1 ** (i + 1))    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        if i == 0:
+            m[key] = np.zeros_like(network.params[key])
+            v[key] = np.zeros_like(network.params[key])
+            
+        m[key] += (1 - beta1) * (grad[key] - m[key])
+        v[key] += (1 - beta2) * (grad[key] ** 2 - v[key])            
+        network.params[key] -= learning_rate_t * m[key] / (np.sqrt(v[key]) + 1e-7)                
+        
+        loss = network.loss(x_batch, d_batch)
+        train_loss_list.append(loss)        
+        
+    if (i + 1) % plot_interval == 0:
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_test.append(accr_test)        
+        accr_train = network.accuracy(x_batch, d_batch)
+        accuracies_train.append(accr_train)
+        
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))
+                
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+{{< figure src="/image/Adam.png" title="Adamで学習を実施するとうまくいく" class="center" width="500" height="300" >}}
+
+
+## 2.3 過学習について
+過学習とは、学習データにおける誤差とテストデータにおける誤差で乖離が発生することである。これは、学習データに特化しすぎたパラメータが設定され、汎化性能がないモデルと言える。過学習が起きる原因は、パラメータ数が多かったり、パラメータ値が適切でないなど、ネットワークの自由度が多いことが原因で発生する。
+
+### 2.3.1 正則化
+過学習を抑える方法として、正則化がある。これはネットワークの自由度（層数、ノード数、パラメータの値など）を制約することである。正則化手法としては以下の2つがある。
+* L1正則化、L2正則化
+* ドロップアウト
+
+##### 確認テスト
+下図について、L1正則化を表しているグラフはどちらか答えよ。
+
+##### 回答
+右の図（Lasso回帰）
+
+### 実装演習
+過学習が以下の学習では発生している。
+
+```python
+import numpy as np
+from collections import OrderedDict
+from common import layers
+from data.mnist import load_mnist
+import matplotlib.pyplot as plt
+from multi_layer_net import MultiLayerNet
+from common import optimizer
+
+
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True)
+
+print("データ読み込み完了")
+
+# 過学習を再現するために、学習データを削減
+x_train = x_train[:300]
+d_train = d_train[:300]
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[100, 100, 100, 100, 100, 100], output_size=10)
+optimizer = optimizer.SGD(learning_rate=0.01)
+
+iters_num = 1000
+train_size = x_train.shape[0]
+batch_size = 100
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    grad = network.gradient(x_batch, d_batch)
+    optimizer.update(network.params, grad)
+
+    loss = network.loss(x_batch, d_batch)
+    train_loss_list.append(loss)
+
+    if (i+1) % plot_interval == 0:
+        accr_train = network.accuracy(x_train, d_train)
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_train.append(accr_train)
+        accuracies_test.append(accr_test)
+
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))        
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+{{< figure src="/image/overfit.png" title="過学習が起きている" class="center" width="500" height="300" >}}
+
+続いて、L2正則化を実施し、学習を実施してみる。しかし、依然として過学習は解消されていないように見える。
+```python
+from common import optimizer
+
+(x_train, d_train), (x_test, d_test) = load_mnist(normalize=True)
+
+print("データ読み込み完了")
+
+# 過学習を再現するために、学習データを削減
+x_train = x_train[:300]
+d_train = d_train[:300]
+
+
+network = MultiLayerNet(input_size=784, hidden_size_list=[100, 100, 100, 100, 100, 100], output_size=10)
+
+
+iters_num = 1000
+train_size = x_train.shape[0]
+batch_size = 100
+learning_rate=0.01
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
+hidden_layer_num = network.hidden_layer_num
+
+# 正則化強度設定 ======================================
+weight_decay_lambda = 0.1
+# =================================================
+
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+
+    grad = network.gradient(x_batch, d_batch)
+    weight_decay = 0
+    
+    for idx in range(1, hidden_layer_num+1):
+        grad['W' + str(idx)] = network.layers['Affine' + str(idx)].dW + weight_decay_lambda * network.params['W' + str(idx)]
+        grad['b' + str(idx)] = network.layers['Affine' + str(idx)].db
+        network.params['W' + str(idx)] -= learning_rate * grad['W' + str(idx)]
+        network.params['b' + str(idx)] -= learning_rate * grad['b' + str(idx)]        
+        weight_decay += 0.5 * weight_decay_lambda * np.sqrt(np.sum(network.params['W' + str(idx)] ** 2))
+
+    loss = network.loss(x_batch, d_batch) + weight_decay
+    train_loss_list.append(loss)        
+        
+    if (i+1) % plot_interval == 0:
+        accr_train = network.accuracy(x_train, d_train)
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_train.append(accr_train)
+        accuracies_test.append(accr_test)
+        
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))               
+
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+{{< figure src="/image/L2.png" title="過学習は解消されず" class="center" width="500" height="300" >}}
+
+
+## 2.4 畳み込みニューラルネットワークの概念
+畳み込み層では、画像の場合、縦・横・チャンネルの3次元のデータをそのまま学習し、次に伝えることができる。つまり、3次元の空間情報も学習できるような層が畳み込み層である。
+
+* パディング  
+画像の周囲に固定値(例えば0)を埋め込むこと。
+パディングなしで畳み込みをすると元の画像より小さくなるが、パディングをすることでサイズを維持することが出来る。また、パディングなしの場合、画像の端の方は他の部分と比べて畳み込みに使われる回数が少なくなり、特徴として抽出されにくいが、パディングをすることによってより端の方も特徴を抽出できるようになる。
+
+* ストライド  
+フィルタをずらす間隔を指定する方法。何も指定しない場合は、1つずつずらしていく。
+
+* チャンネル  
+空間的な奥行きのことを指す。例えば、カラー画像の場合はRGBの3チャンネルに分けて畳み込みを行う。
+
+* プーリング層
+  * 最大値プーリング
+  * 平均値プーリング  
+対象領域の中からある1つの値を取得する層。
+畳み込みを行った後にプーリングを行うことでそれらしい特徴を持った値のみを抽出することが可能となる。
+
+
+##### 確認テスト
+サイズ6×6の入力画像を、サイズ2×2のフィルタで畳み込んだ時の出力画像のサイズを答えよ。なおストライドとパディングは1とする。
+
+##### 回答
+7x7
+
+### 実装演習
+ここでは実際に畳み込みを行っているソースコードのみ、レポートとして報告をする。
+```python
+from common import optimizer
+
+# データの読み込み
+(x_train, d_train), (x_test, d_test) = load_mnist(flatten=False)
+
+print("データ読み込み完了")
+
+# 処理に時間のかかる場合はデータを削減 
+x_train, d_train = x_train[:5000], d_train[:5000]
+x_test, d_test = x_test[:1000], d_test[:1000]
+
+
+network = SimpleConvNet(input_dim=(1,28,28), conv_param = {'filter_num': 30, 'filter_size': 5, 'pad': 0, 'stride': 1},
+                        hidden_size=100, output_size=10, weight_init_std=0.01)
+
+optimizer = optimizer.Adam()
+
+iters_num = 1000
+train_size = x_train.shape[0]
+batch_size = 100
+
+train_loss_list = []
+accuracies_train = []
+accuracies_test = []
+
+plot_interval=10
 
 
 
+for i in range(iters_num):
+    batch_mask = np.random.choice(train_size, batch_size)
+    x_batch = x_train[batch_mask]
+    d_batch = d_train[batch_mask]
+    
+    grad = network.gradient(x_batch, d_batch)
+    optimizer.update(network.params, grad)
+
+    loss = network.loss(x_batch, d_batch)
+    train_loss_list.append(loss)
+
+    if (i+1) % plot_interval == 0:
+        accr_train = network.accuracy(x_train, d_train)
+        accr_test = network.accuracy(x_test, d_test)
+        accuracies_train.append(accr_train)
+        accuracies_test.append(accr_test)
+        
+        print('Generation: ' + str(i+1) + '. 正答率(トレーニング) = ' + str(accr_train))
+        print('                : ' + str(i+1) + '. 正答率(テスト) = ' + str(accr_test))               
+
+lists = range(0, iters_num, plot_interval)
+plt.plot(lists, accuracies_train, label="training set")
+plt.plot(lists, accuracies_test,  label="test set")
+plt.legend(loc="lower right")
+plt.title("accuracy")
+plt.xlabel("count")
+plt.ylabel("accuracy")
+plt.ylim(0, 1.0)
+# グラフの表示
+plt.show()
+```
+{{< figure src="/image/CNN.png" title="畳み込みを使用した学習" class="center" width="500" height="300" >}}
+
+## 2.5 最新のCNN
+この章では、過学習を防ぐ施策である、AlexNetという手法について、学習した。
+AlexNetは、Hinton 教授らのチームによって発表された物体認識のためのモデル（アーキテクチャ）である。
+2012年にILSVRC（ImageNet Large Scale Visual Recognition Challenge）で優勝したモデル。
+
+過学習を防ぐ施策であり、サイズ4096の全結合層の出力にドロップアウトを使用している。
+
+2012年前までの画像分類チャレンジコンテストにおいて、画像から特徴量を抽出し、その特徴量を用いて画像の分類を行なっていた。当時、画像から特徴量を抽出する際に、人が、物体の色・輝度・形など特徴量を設計していた。そのため、いかに有効な特徴量を設計できることが、画像分類の性能を左右していた。それが、2012年に、人が特徴量を設計しなくても、十分なデータさえ存在すれば、機械自身が特徴量を見つけ出すことが AlexNet によって示された。
+
+AlexNet は、深さが 8 層の畳み込みニューラルネットワークである。100万枚を超えるイメージで学習させた事前学習済みのネットワークを、ImageNetデータベースから読み込むことができます。この事前学習済みのネットワークは、イメージを 1000 個のオブジェクトカテゴリ (キーボード、マウス、鉛筆、多くの動物など) に分類できる。結果として、このネットワークは広範囲のイメージに対する豊富な特徴表現を学習している。
+
+参考文献：  
+https://axa.biopapyrus.jp/deep-learning/cnn/image-classification/alexnet.html  
+https://jp.mathworks.com/help/deeplearning/ref/alexnet.html;jsessionid=e166d58061fcf83da3bfb7de7740  
+Krizhevsky A, Sutskever I, Hinton GE. ImageNet classification with deep convolutional neural networks. NeurIPS. 2012. DOI: 10.1145/3065386
 
 
+### 実装演習
+googleで公開されているAlexNetのpythonモジュールを以下に示す。
+```python
+def alexnet_v2_arg_scope(weight_decay=0.0005):
+  with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                      activation_fn=tf.nn.relu,
+                      biases_initializer=tf.constant_initializer(0.1),
+                      weights_regularizer=slim.l2_regularizer(weight_decay)):
+    with slim.arg_scope([slim.conv2d], padding='SAME'):
+      with slim.arg_scope([slim.max_pool2d], padding='VALID') as arg_sc:
+        return arg_sc
 
+def alexnet_v2(inputs,
+               num_classes=1000,
+               is_training=True,
+               dropout_keep_prob=0.5,
+               spatial_squeeze=True,
+               scope='alexnet_v2',
+               global_pool=False):
+  with tf.variable_scope(scope, 'alexnet_v2', [inputs]) as sc:
+    end_points_collection = sc.original_name_scope + '_end_points'
+    # Collect outputs for conv2d, fully_connected and max_pool2d.
+    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d],
+                        outputs_collections=[end_points_collection]):
+      net = slim.conv2d(inputs, 64, [11, 11], 4, padding='VALID',
+                        scope='conv1')
+      net = slim.max_pool2d(net, [3, 3], 2, scope='pool1')
+      net = slim.conv2d(net, 192, [5, 5], scope='conv2')
+      net = slim.max_pool2d(net, [3, 3], 2, scope='pool2')
+      net = slim.conv2d(net, 384, [3, 3], scope='conv3')
+      net = slim.conv2d(net, 384, [3, 3], scope='conv4')
+      net = slim.conv2d(net, 256, [3, 3], scope='conv5')
+      net = slim.max_pool2d(net, [3, 3], 2, scope='pool5')
 
+      # Use conv2d instead of fully_connected layers.
+      with slim.arg_scope([slim.conv2d],
+                          weights_initializer=trunc_normal(0.005),
+                          biases_initializer=tf.constant_initializer(0.1)):
+        net = slim.conv2d(net, 4096, [5, 5], padding='VALID',
+                          scope='fc6')
+        net = slim.dropout(net, dropout_keep_prob, is_training=is_training,
+                           scope='dropout6')
+        net = slim.conv2d(net, 4096, [1, 1], scope='fc7')
+        # Convert end_points_collection into a end_point dict.
+        end_points = slim.utils.convert_collection_to_dict(
+            end_points_collection)
+        if global_pool:
+          net = tf.reduce_mean(net, [1, 2], keep_dims=True, name='global_pool')
+          end_points['global_pool'] = net
+        if num_classes:
+          net = slim.dropout(net, dropout_keep_prob, is_training=is_training,
+                             scope='dropout7')
+          net = slim.conv2d(net, num_classes, [1, 1],
+                            activation_fn=None,
+                            normalizer_fn=None,
+                            biases_initializer=tf.zeros_initializer(),
+                            scope='fc8')
+          if spatial_squeeze:
+            net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+          end_points[sc.name + '/fc8'] = net
+      return net, end_points
+alexnet_v2.default_image_size = 224
+```
 

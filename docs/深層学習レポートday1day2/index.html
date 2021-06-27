@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E検定チャレンジ用">
+    
+    <link rel="shortcut icon" href="https://yukiono0420.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>深層学習レポートDay1Day2</title>
+</head>
+<body><head>
+    
+	
+		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: { equationNumbers: { autoNumber: "AMS" },
+                extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+    });
+
+    MathJax.Hub.Queue(function() {
+        
+        
+        
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+    MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://yukiono0420.github.iocss/mathjax-style.css">
+
+	
+</head>
+
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>深層学習レポートDay1Day2</h1>
+            <div>
+                <time>June 27, 2021</time>
+                </div>
+    </header><h1 id="1-深層学習day1レポート">1. 深層学習day1レポート</h1>
+<h2 id="10-ニューラルネットワークの全体像">1.0 ニューラルネットワークの全体像</h2>
+<h5 id="確認テスト1">確認テスト1</h5>
+<p>ディープラーニングは、結局何をやろうとしているか2行以内で述べよ。また、次の中のどの値の最適化が最終目的か。全て選べ。（1分）
+①入力値[ X] ②出力値[ Y]③重み[W]④バイアス[b]⑤総入力[u] ⑥中間層入力[ z]⑦学習率[ρ]</p>
+<h5 id="回答">回答</h5>
+<p>多数の中間層を用いることにより、入力から目的とする数値を出力する変換を行う数学モデルを構築すること。③と④。</p>
+<h5 id="確認テスト2">確認テスト2</h5>
+<p>次のネットワークを紙にかけ。<br>
+入力層 2ノード1層<br>
+中間層 ３ノード2層<br>
+出力層 1ノード1層（5分）<br>
+NN全体像確認テスト</p>
+<h5 id="回答-1">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%882.png" width="600" height="300"/><figcaption>
+            <h4>ネットワーク</h4>
+        </figcaption>
+</figure>
+
+<h2 id="11-入力層中間層">1.1 入力層〜中間層</h2>
+<p>ある入力の特徴の入力を各ノードに代入し、その入力に対して重みwとバイアスbを考慮し、中間層のノードに対して出力を行う。動物の写真判定の例では、入力として「動物の体長」や「動物の足の長さ」など、写真を判定するのに必要な情報をインプットする。</p>
+<h5 id="確認テスト3">確認テスト3</h5>
+<p>この図式に動物分類の実例を入れてみよう。（3分）
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+</p>
+<h5 id="回答-2">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%9b%9e%e7%ad%94.png" width="300" height="600"/><figcaption>
+            <h4>確認テスト回答</h4>
+        </figcaption>
+</figure>
+
+<h5 id="確認テスト4">確認テスト4</h5>
+<p>この数式をPythonで書け。（2分）</p>
+<h5 id="回答-3">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%883%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span>
+</code></pre></div><h5 id="確認テスト5">確認テスト5</h5>
+<p>1-1のファイルから中間層の出力を定義しているソースを抜き出せ。（2分）</p>
+<h5 id="回答-4">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># 中間層出力</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力&#34;</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習">実装演習</h3>
+<p>単層単ユニットにおける実装演習結果を示す。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#functionsモジュールを呼び出すことができなかったため、functionsをfunctions_dnnに読み替えて実装</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c1">#from common import functions_dnn</span>
+<span class="kn">import</span> <span class="nn">functions_dnn</span>
+
+
+<span class="k">def</span> <span class="nf">print_vec</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;*** &#34;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&#34; ***&#34;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="c1">#print(&#34;shape: &#34; + str(x.shape))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+
+<span class="c1"># 順伝播（単層・単ユニット）</span>
+
+<span class="c1"># 重み</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">]])</span>
+
+<span class="c1">## 試してみよう_配列の初期化</span>
+<span class="c1">#W = np.zeros(2)</span>
+<span class="c1">#W = np.ones(2)</span>
+<span class="c1">#W = np.random.rand(2)</span>
+<span class="c1">#W = np.random.randint(5, size=(2))</span>
+
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み&#34;</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+
+
+<span class="c1"># バイアス</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="c1">## 試してみよう_数値の初期化</span>
+<span class="c1">#b = np.random.rand() # 0~1のランダム数値</span>
+<span class="c1">#b = np.random.rand() * 10 -5  # -5~5のランダム数値</span>
+
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス&#34;</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># 入力値</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;入力&#34;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+
+<span class="c1"># 総入力</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力&#34;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+<span class="c1"># 中間層出力</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力&#34;</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+</code></pre></div><p>[出力結果]<br>
+*** 重み ***
+[[0.1]
+[0.2]]<br>
+*** バイアス ***
+0.5<br>
+*** 入力 ***
+[2 3]<br>
+*** 総入力 ***
+[1.3]<br>
+*** 中間層出力 ***
+[1.3]</p>
+<h2 id="12-活性化関数">1.2 活性化関数</h2>
+<p>ニューラルネットワークにおいて、次のそうへの出力の大きさを決める&quot;非線形な関数&quot;のことを、活性化関数という。
+入力値の値によっては、次の層への信号のON/OFFや強弱を定める働きを持っている。</p>
+<ul>
+<li>
+<p>中間層用の活性化関数</p>
+<ul>
+<li>
+<p>ReLU関数<br>
+今最も使われている活性化関数でで、勾配消失問題の回避とスパース化に貢献することでいい成果をもたらしている。</p>
+</li>
+<li>
+<p>シグモイド（ロジスティック）関数<br>
+0~1を緩やかに変化する関数で、ステップ関数ではON/OFFしかない状態に対し、信号の強弱を伝えられるようになり、予想ニューラルネットワーク普及のきっかけとなった。</p>
+</li>
+<li>
+<p>ステップ関数<br>
+閾値を超えたら発火する関数でさり、出力は常に1か0である。パーセプトロン（NNの前進）で利用された関数。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>出力層用の活性化関数</p>
+<ul>
+<li>ソフトマックス関数</li>
+<li>恒等写像</li>
+<li>シグモイド関数（ロジスティック）関数</li>
+</ul>
+</li>
+</ul>
+<h5 id="確認テスト1-1">確認テスト1</h5>
+<p>線形と非線形の違いを図に書いて、簡易に説明せよ。</p>
+<h5 id="回答-5">回答</h5>
+<p>線形：いわゆる比例の関係。二次元上では直線で表すことができる。<br>
+非線形：二次元上で直線で表すことができない関数。</p>
+<h5 id="確認テスト2-1">確認テスト2</h5>
+<p>配布されたソースコードより、該当する箇所を抜き出せ。</p>
+<h5 id="回答-6">回答</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.2.2%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">z</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習-1">実装演習</h3>
+<p>common関数内に存在する活性化関数について、実装演習を行う。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># 中間層の活性化関数</span>
+<span class="c1"># シグモイド関数（ロジスティック関数）</span>
+<span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># ReLU関数</span>
+<span class="k">def</span> <span class="nf">relu</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># ステップ関数（閾値0）</span>
+<span class="k">def</span> <span class="nf">step_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> 
+
+</code></pre></div><h2 id="13-出力層">1.3 出力層</h2>
+<h3 id="誤差関数">誤差関数</h3>
+<p>出力層では、ニューラルネットワークによって得られた出力結果（出力値）と訓練データ（正解値）との差分を誤差関数として定義している。</p>
+<p>\begin{eqnarray*}
+E_n(\boldsymbol{w}) = \frac{1}{2} \sum^J_{j=1} (y_j - d_j)^2 = \frac{1}{2} ||(\boldsymbol{y} - \boldsymbol{d})||^2
+\end{eqnarray*}</p>
+<h3 id="全結合nn---出力層の活性化関数">全結合NN - 出力層の活性化関数</h3>
+<p>出力層と中間層の活性化関数の違いとして以下の特徴があるため、出力層と中間層で利用される活性化関数は異なっている。</p>
+<ul>
+<li>
+<p>値の強弱</p>
+<ul>
+<li>中間層：閾値の前後で信号の強弱を調整</li>
+<li>出力層：信号の大きさ（比率）はそのままに変換</li>
+</ul>
+</li>
+<li>
+<p>確率出力</p>
+<ul>
+<li>分類問題の場合、出力層の出力は0~1の範囲に限定し、総和を1とする必要がある。</li>
+</ul>
+</li>
+</ul>
+<h5 id="確認テスト1-2">確認テスト1</h5>
+<p>なぜ引き算ではなく二乗するかを述べよ、また、下式の1/2はどういう意味を持つか述べよ。
+\begin{eqnarray*}
+E_n(\boldsymbol{w}) = \frac{1}{2} \sum^J_{j=1} (y_j - d_j)^2 = \frac{1}{2} ||(\boldsymbol{y} - \boldsymbol{d})||^2
+\end{eqnarray*}</p>
+<h5 id="回答-7">回答</h5>
+<p>二乗しない場合、正負の値が混在するものを総和するため、誤差としての特徴を抽出するのが難しいため。<br>
+1/2の意味は、逆伝播法にて誤差関数を微分して重みをアップデートする際に、計算が容易になるため。</p>
+<h5 id="確認テスト2-2">確認テスト2</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.3.2%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-8">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># ソフトマックス関数</span>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># ミニバッチとしてデータを取扱う際に利用する</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>        
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># オーバーフロー対策</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># ①を求めている、分母が③で分子が②</span>
+    <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>
+
+  <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># オーバーフロー対策</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="c1"># ①を求めている、分母が③で分子が②</span>
+</code></pre></div><h5 id="確認テスト3-1">確認テスト3</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.3.3%e5%95%8f%e9%a1%8c.png" width="600" height="300"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-9">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># クロスエントロピー</span>
+<span class="k">def</span> <span class="nf">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>    <span class="c1"># 1次元の場合。</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>    <span class="c1"># (1, 要素数)のベクトルへ変形する</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>    <span class="c1"># (1, 要素数)のベクトルへ変形する</span>
+
+  <span class="c1"># 教師データが one-hot-vector の場合、正解ラベルのインデックスに変換</span>
+  <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 最大値のインデックス値を取得</span>
+
+  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># バッチサイズを定義</span>
+  <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">d</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span> <span class="o">/</span> <span class="n">batch_size</span> 
+  <span class="c1"># バッチサイズ分、対数関数に与えている。</span>
+</code></pre></div><h3 id="実装演習-2">実装演習</h3>
+<p>出力層での活性化関数についての実装結果を以下に記載。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># 出力層の活性化関数</span>
+<span class="c1"># ソフトマックス関数</span>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># オーバーフロー対策</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># ソフトマックスとクロスエントロピーの複合関数</span>
+<span class="k">def</span> <span class="nf">softmax_with_loss</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># 誤差関数</span>
+<span class="c1"># 平均二乗誤差</span>
+<span class="k">def</span> <span class="nf">mean_squared_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="c1"># クロスエントロピー</span>
+<span class="k">def</span> <span class="nf">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        
+    <span class="c1"># 教師データがone-hot-vectorの場合、正解ラベルのインデックスに変換</span>
+    <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+             
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">d</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">))</span> <span class="o">/</span> <span class="n">batch_size</span>
+</code></pre></div><h2 id="14-勾配降下法">1.4 勾配降下法</h2>
+<p>深層学習の目的としては、学習を通して誤差関数を最小とするネットワークを作成することである。これはつまり、誤差関数$E(\boldsymbol{w})$を最小化するパラメータ$\boldsymbol{w}$を見つけることである。その際に、勾配降下法を用いて、パラメータ$\boldsymbol{w}$を求める。</p>
+<ul>
+<li>勾配降下法</li>
+<li>確率的勾配降下法</li>
+<li>ミニバッチ勾配降下法</li>
+</ul>
+<p>勾配降下法で利用されているアルゴリズムとして、以下のものがある。</p>
+<ul>
+<li>Momentoum</li>
+<li>AdaGrad</li>
+<li>AdaDelta</li>
+<li>Adam</li>
+</ul>
+<p>勾配降下法では、学習率$\epsilon$によって学習の効率が大きく異なる。学習率が大きすぎた場合、最小値にいつまでもたどり着かず発散してしまうが、学習率が小さい場合発散することはないが、小さすぎると収束するまでに時間がかかってしまう。そのため、発散せずかつ時間をそれほど要さないような適切な学習率を設定することが、勾配降下法では必要とされる。</p>
+<h5 id="確認テスト1-3">確認テスト1</h5>
+<figure class="center"><img src="/image/%e7%a2%ba%e8%aa%8d%e3%83%86%e3%82%b9%e3%83%881.4.1%e5%95%8f%e9%a1%8c.png" width="600" height="150"/><figcaption>
+            <h4>確認テスト問題</h4>
+        </figcaption>
+</figure>
+
+<h5 id="回答-10">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">network</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">-=</span> <span class="n">learning_rate</span><span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<span class="n">grad</span> <span class="o">=</span> <span class="n">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="n">S4</span><span class="p">)</span>
+</code></pre></div><h5 id="確認テスト2-3">確認テスト2</h5>
+<p>オンライン学習とは何か2行でまとめよ（2分）</p>
+<h5 id="回答-11">回答</h5>
+<p>ニューラルネットワークの入力に対して、その都度データを与えて学習をさせる方法。学習データが入ってくる都度パラメータを更新していき、学習を進めていく。一方、バッチ学習は、一度に全ての学習データを投入する手法。</p>
+<h3 id="実装演習-3">実装演習</h3>
+<p>誤差逆伝播法における実装演習と合わせて実施。</p>
+<h2 id="15-誤差逆伝播法">1.5 誤差逆伝播法</h2>
+<p>誤差逆伝播法では、算出された誤差を出力層側から順に微分し、前の層前の層へと伝播していく。最小限の計算で各パラメータでの微分値を解析的に計算する手法である。計算結果（=誤差）から微分を逆算することで、不要な再帰的計算を避けて微分を算出することができる。</p>
+<h5 id="確認テスト1-4">確認テスト1</h5>
+<p>誤差逆伝播法では不要な再帰的処理を避ける事が出来る。既に行った計算結果を保持しているソースコードを抽出せよ。</p>
+<h5 id="回答-12">回答</h5>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python">    <span class="c1"># １回使った微分を使いまわしている。</span>
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">W2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_sigmoid</span><span class="p">(</span><span class="n">z1</span><span class="p">)</span>
+
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">delta1</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+</code></pre></div><h5 id="確認テスト2-4">確認テスト2</h5>
+<p>2つの空欄に該当するソースコードを探せ</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">delta2</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_mean_squared_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+</code></pre></div><h3 id="実装演習-4">実装演習</h3>
+<p>誤差逆伝播法を利用して重みを更新しているソースに関する演習を実施する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">functions_dnn</span> <span class="c1"># functions.pyをリネームしている</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="k">def</span> <span class="nf">print_vec</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;*** &#34;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&#34; ***&#34;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="c1">#print(&#34;shape: &#34; + str(x.shape))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+
+<span class="c1"># ウェイトとバイアスを設定</span>
+<span class="c1"># ネートワークを作成</span>
+<span class="k">def</span> <span class="nf">init_network</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### ネットワークの初期化 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+    <span class="p">])</span>
+
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+    <span class="p">])</span>
+
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+    <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+    
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">network</span>
+
+<span class="c1"># 順伝播</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 順伝播開始 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">W1</span><span class="p">,</span> <span class="n">W2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span>
+    <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span>
+    
+    <span class="n">u1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span>
+    <span class="n">z1</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">u1</span><span class="p">)</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="n">W2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">u2</span><span class="p">)</span>
+    
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力1&#34;</span><span class="p">,</span> <span class="n">u1</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;中間層出力1&#34;</span><span class="p">,</span> <span class="n">z1</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;総入力2&#34;</span><span class="p">,</span> <span class="n">u2</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;出力1&#34;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;出力合計: &#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">z1</span>
+
+<span class="c1"># 誤差逆伝播</span>
+<span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">##### 誤差逆伝播開始 #####&#34;</span><span class="p">)</span>
+
+    <span class="n">grad</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">W1</span><span class="p">,</span> <span class="n">W2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span>
+    <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">],</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span>
+    <span class="c1">#  出力層でのデルタ</span>
+    <span class="n">delta2</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">d_sigmoid_with_loss</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="c1">#  b2の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#  W2の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+    <span class="c1">#  中間層でのデルタ</span>
+    <span class="n">delta1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta2</span><span class="p">,</span> <span class="n">W2</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">d_relu</span><span class="p">(</span><span class="n">z1</span><span class="p">)</span>
+    <span class="c1"># b1の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#  W1の勾配</span>
+    <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta1</span><span class="p">)</span>
+        
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_dE/du2&#34;</span><span class="p">,</span> <span class="n">delta2</span><span class="p">)</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_dE/du2&#34;</span><span class="p">,</span> <span class="n">delta1</span><span class="p">)</span>
+
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_重み1&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;W1&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_重み2&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;W2&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_バイアス1&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;b1&#34;</span><span class="p">])</span>
+    <span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;偏微分_バイアス2&#34;</span><span class="p">,</span> <span class="n">grad</span><span class="p">[</span><span class="s2">&#34;b2&#34;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">grad</span>
+    
+<span class="c1"># 訓練データ</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="c1"># 目標出力</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="c1">#  学習率</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">network</span> <span class="o">=</span>  <span class="n">init_network</span><span class="p">()</span>
+<span class="n">y</span><span class="p">,</span> <span class="n">z1</span> <span class="o">=</span> <span class="n">forward</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># 誤差</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">functions_dnn</span><span class="o">.</span><span class="n">cross_entropy_error</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">grad</span> <span class="o">=</span> <span class="n">backward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">):</span>
+    <span class="n">network</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 結果表示 #####&#34;</span><span class="p">)</span>    
+
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;##### 更新後パラメータ #####&#34;</span><span class="p">)</span> 
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;重み2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;W2&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス1&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b1&#39;</span><span class="p">])</span>
+<span class="n">print_vec</span><span class="p">(</span><span class="s2">&#34;バイアス2&#34;</span><span class="p">,</span> <span class="n">network</span><span class="p">[</span><span class="s1">&#39;b2&#39;</span><span class="p">])</span>
+</code></pre></div><p>[出力結果]</p>
+<h5 id="ネットワークの初期化">ネットワークの初期化</h5>
+<p>*** 重み1 ***
+[[0.1 0.3 0.5]
+[0.2 0.4 0.6]]</p>
+<p>*** 重み2 ***
+[[0.1 0.4]
+[0.2 0.5]
+[0.3 0.6]]</p>
+<p>*** バイアス1 ***
+[0.1 0.2 0.3]</p>
+<p>*** バイアス2 ***
+[0.1 0.2]</p>
+<h5 id="順伝播開始">順伝播開始</h5>
+<p>*** 総入力1 ***
+[[1.2 2.5 3.8]]</p>
+<p>*** 中間層出力1 ***
+[[1.2 2.5 3.8]]</p>
+<p>*** 総入力2 ***
+[[1.86 4.21]]</p>
+<p>*** 出力1 ***
+[[0.08706577 0.91293423]]</p>
+<p>出力合計: 1.0</p>
+<h5 id="誤差逆伝播開始">誤差逆伝播開始</h5>
+<p>*** 偏微分_dE/du2 ***
+[[ 0.08706577 -0.08706577]]</p>
+<p>*** 偏微分_dE/du2 ***
+[[-0.02611973 -0.02611973 -0.02611973]]</p>
+<p>*** 偏微分_重み1 ***
+[[-0.02611973 -0.02611973 -0.02611973]
+[-0.13059866 -0.13059866 -0.13059866]]</p>
+<p>*** 偏微分_重み2 ***
+[[ 0.10447893 -0.10447893]
+[ 0.21766443 -0.21766443]
+[ 0.33084994 -0.33084994]]</p>
+<p>*** 偏微分_バイアス1 ***
+[-0.02611973 -0.02611973 -0.02611973]</p>
+<p>*** 偏微分_バイアス2 ***
+[ 0.08706577 -0.08706577]</p>
+<h5 id="結果表示">結果表示</h5>
+<h5 id="更新後パラメータ">更新後パラメータ</h5>
+<p>*** 重み1 ***
+[[0.1002612  0.3002612  0.5002612 ]
+[0.20130599 0.40130599 0.60130599]]</p>
+<p>*** 重み2 ***
+[[0.09895521 0.40104479]
+[0.19782336 0.50217664]
+[0.2966915  0.6033085 ]]</p>
+<p>*** バイアス1 ***
+[0.1002612 0.2002612 0.3002612]</p>
+<p>*** バイアス2 ***
+[0.09912934 0.20087066]</p>
+<h1 id="2-深層学習day2レポート">2. 深層学習day2レポート</h1>
+<h1 id="21-勾配消失問題について">2.1 勾配消失問題について</h1>
+<p>誤差逆伝播法が下位置に進んでいくにつれて、勾配が緩やかになっていく。これは、勾配降下法による重みパラメータの更新では、逆伝播の中に活性化関数の微分が複数回登場するためである。sigmoid関数の微分では、最大値が0.25であり大きな値では出力の変化量が微小であることから、sigmoid関数の微分が複数回行われた後は、勾配が微小になってしまうことがある。その結果、下位（入力側）パラメータはほとんど変化しないため、訓練が最適解に収束しなくなってしまう。</p>
+<ul>
+<li>勾配消失の解決法
+<ul>
+<li>活性化関数の選択：ReLU関数</li>
+<li>重みの初期値設定</li>
+<li>バッチ正規化</li>
+</ul>
+</li>
+</ul>
+<h3 id="211-relu関数">2.1.1 ReLU関数</h3>
+<p>今最も使われている活性化関数。勾配消失問題の回避とスパース化に貢献することで良い結果を残している。
+※スパース化：中間層の重みパラメータのうち、必要な重みのみが選択的に抽出されること</p>
+<h3 id="212-重みの初期値設定">2.1.2 重みの初期値設定</h3>
+<h4 id="xavier">Xavier</h4>
+<p>重みの要素を前のレイヤのノード数の平方根で割る初期値の設定方法。<br>
+（重みはベクトルのため、１つの要素には個性があるため、個性の洗濯が起きる</p>
+<h4 id="he">He</h4>
+<p>重みの要素を前のレイヤのノード数のルートで割ったものに、$\sqrt{2}$を乗算して初期値を設定する。</p>
+<h3 id="213-バッチ正規化">2.1.3 バッチ正規化</h3>
+<p>バッチ正規化とは、ミニバッチ単位で、入力値のデータの偏りを抑制する手法である。バッチ正規化は、活性化関数に値を渡す前後に、バッチ正規化の処理を孕んだ層を加える。</p>
+<h5 id="確認テスト1-5">確認テスト1</h5>
+<p>重みの初期値に0を設定すると、どのような問題が発生するか。簡潔に説明せよ。</p>
+<h5 id="回答-13">回答</h5>
+<p>すべての重みの値が均一に更新されることになることから、各ノードに設定されている重みをもつ意味がなく、正しい学習を行うことができなくなる。</p>
+<h5 id="確認テスト2-5">確認テスト2</h5>
+<p>一般的に考えられるバッチ正規化の効果を2点あげよ。</p>
+<h5 id="回答-14">回答</h5>
+<ul>
+<li>ニューラルネットワークの学習中に中間層の重みの更新が安定化する（学習が安定化し学習スピードが向上する）</li>
+<li>過学習の抑制</li>
+</ul>
+<h3 id="実装演習-5">実装演習</h3>
+<p>まず、多層構造ニューラルネットワーククラスを作成する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">layers</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">functions_dnn</span>
+<span class="kn">from</span> <span class="nn">mnist</span> <span class="kn">import</span> <span class="n">load_mnist</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+
+<span class="k">class</span> <span class="nc">MultiLayerNet</span><span class="p">:</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    input_size: 入力層のノード数
+</span><span class="s1">    hidden_size_list: 隠れ層のノード数のリスト
+</span><span class="s1">    output_size: 出力層のノード数
+</span><span class="s1">    activation: 活性化関数
+</span><span class="s1">    weight_init_std: 重みの初期化方法
+</span><span class="s1">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">input_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">output_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size_list</span> <span class="o">=</span> <span class="n">hidden_size_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_layer_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hidden_size_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># 重みの初期化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_weight</span><span class="p">(</span><span class="n">weight_init_std</span><span class="p">)</span>
+
+        <span class="c1"># レイヤの生成, sigmoidとreluのみ扱う</span>
+        <span class="n">activation_layer</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">layers</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">,</span> <span class="s1">&#39;relu&#39;</span><span class="p">:</span> <span class="n">layers</span><span class="o">.</span><span class="n">Relu</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span> <span class="c1"># 追加した順番に格納</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_layer_num</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Affine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Activation_function&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">activation_layer</span><span class="p">[</span><span class="n">activation</span><span class="p">]()</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_layer_num</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Affine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)],</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">SoftmaxWithLoss</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="p">):</span>
+        <span class="n">all_size_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">input_size</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size_list</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_size_list</span><span class="p">)):</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">weight_init_std</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">weight_init_std</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="s1">&#39;he&#39;</span><span class="p">):</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">all_size_list</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="n">weight_init_std</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="s1">&#39;xavier&#39;</span><span class="p">):</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">all_size_list</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">all_size_list</span><span class="p">[</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">all_size_list</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">all_size_list</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">weight_decay</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_layer_num</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="n">weight_decay</span>
+
+    <span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">accuracy</span>
+
+    <span class="k">def</span> <span class="nf">gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="c1"># forward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># backward</span>
+        <span class="n">dout</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">dout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_layer</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">dout</span><span class="p">)</span>
+
+        <span class="n">layers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+            <span class="n">dout</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">dout</span><span class="p">)</span>
+
+        <span class="c1"># 設定</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_layer_num</span><span class="o">+</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span><span class="o">.</span><span class="n">dW</span>
+            <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span><span class="o">.</span><span class="n">db</span>
+
+        <span class="k">return</span> <span class="n">grad</span>
+</code></pre></div><p>勾配消失問題の具体例として、活性化関数にsigmoid関数を使用してみる。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">one_hot_label</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="c1"># 勾配</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;W3&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">):</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>        
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>
+        
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><p>下図のように、学習を進めても正答率が上がっておらず、勾配消失問題を引き起こしていることがわかる。
+<figure class="center"><img src="/image/%e5%8b%be%e9%85%8d%e6%b6%88%e5%a4%b1%e4%be%8b.png" width="500" height="300"/><figcaption>
+            <h4>勾配消失している場合の正答率</h4>
+        </figcaption>
+</figure>
+</p>
+<p>続いて、活性化関数をReLU関数にして学習を実施する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">one_hot_label</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="c1"># 勾配</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;W3&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">):</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>        
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>
+        
+        
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><p>下図のように、学習を進めるにつれて正答率が上がっており、勾配消失問題が解消していることがわかる。
+<figure class="center"><img src="/image/%e5%8b%be%e9%85%8d%e6%b6%88%e5%a4%b1%e8%a7%a3%e6%b6%88.png" width="500" height="300"/><figcaption>
+            <h4>勾配消失が解消している場合の正答率</h4>
+        </figcaption>
+</figure>
+</p>
+<p>続いて、初期設定方法にXavierを使用し、再び学習をする。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">one_hot_label</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="s1">&#39;Xavier&#39;</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="c1"># 勾配</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;W3&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">):</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>        
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>
+        
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><p>下図のように、Xavierを使うと、学習が緩やかに進んでいくことがわかる。
+<figure class="center"><img src="/image/Xavier.png" width="500" height="300"/><figcaption>
+            <h4>Xavier</h4>
+        </figcaption>
+</figure>
+</p>
+<h2 id="22-学習率最適化手法について">2.2 学習率最適化手法について</h2>
+<p>学習率を学習が進めていくにつれて変化させていくのが、学習率最適化手法である。
+学習率最適化手法には以下の4つの手法がある。</p>
+<ul>
+<li>モメンタム</li>
+<li>AdaGrad</li>
+<li>RMSProp</li>
+<li>Adam</li>
+</ul>
+<h3 id="221-モメンタム">2.2.1 モメンタム</h3>
+<p>誤差をパラメータで微分したものと学習率の積を減算した後、現在の重みに前回の重みを減算した値と慣性の積を加算する。
+モメンタムのメリットは以下の2点。</p>
+<ul>
+<li>局所的最適解にはならず、大域的最適解となる。</li>
+<li>谷間についてから最も低い位置に行くまでの時間が早い</li>
+</ul>
+<h3 id="222-adagrad">2.2.2 AdaGrad</h3>
+<p>誤差をパラメータで微分したものと、再定義した学習率の積を減算する。
+AdaGradのメリットは、勾配が緩やかな斜面に対して、最適解に近づけるという点があるが、一方学習率が徐々に小さくなるため、鞍点問題を引き起こすことがある。</p>
+<h3 id="223-rmsprop">2.2.3 RMSProp</h3>
+<p>誤差をパラメータで微分したものと、再定義した学習率の積を減算する。AdaGradの改良版である。
+RMSPropのメリットは以下の2点。</p>
+<ul>
+<li>局所的最適解にはならず、大域的最適解となる。</li>
+<li>ハイパーパラメータの調整が必要な場合が少ない。</li>
+</ul>
+<h3 id="224-adam">2.2.4 Adam</h3>
+<p>Adamはモメンタムの「過去の勾配の指数関数的減衰平均」と、RMSPropの「過去の勾配の2乗の指数関数的減衰平均」をそれぞれ孕んだ最適化アルゴリズムである。AdamはモメンタムとRMSPropのそれぞれのメリットを孕んだアルゴリズムのため、広く使用されている。</p>
+<h5 id="確認テスト">確認テスト</h5>
+<p>モメンタム・AdaGrad・RMSPropの特徴をそれぞれ簡潔に説明せよ。</p>
+<h5 id="回答-15">回答</h5>
+<p>上記の2.2.1〜2.2.3を参照。</p>
+<h3 id="実装演習-6">実装演習</h3>
+<p>実装演習レポートには、Adamの実装結果を記載する。
+まずは、SGD（確率的勾配降下法）にて学習をさせた結果を記載する。学習をしてもうまくいっていないことがわかる。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">layers</span>
+<span class="kn">from</span> <span class="nn">mnist</span> <span class="kn">import</span> <span class="n">load_mnist</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">multi_layer_net</span> <span class="kn">import</span> <span class="n">MultiLayerNet</span>
+
+
+<span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">one_hot_label</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="c1"># batch_normalizationの設定 =======================</span>
+<span class="c1"># use_batchnorm = True</span>
+<span class="n">use_batchnorm</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c1"># ====================================================</span>
+
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                       <span class="n">use_batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="c1"># 勾配</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;W3&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">):</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>        
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>
+
+        
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/SGD.png" width="500" height="300"/><figcaption>
+            <h4>SGDで学習を実施してもうまく学習がされない</h4>
+        </figcaption>
+</figure>
+
+<p>ここからは、Adamにて学習を実施する。Adamにて実施すると学習が進むにつれて、正答率が上がっており、正しく学習が進んでいることがわかる。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">one_hot_label</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="c1"># batch_normalizationの設定 =======================</span>
+<span class="c1"># use_batchnorm = True</span>
+<span class="n">use_batchnorm</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c1"># ====================================================</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;sigmoid&#39;</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                       <span class="n">use_batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.9</span>
+<span class="n">beta2</span> <span class="o">=</span> <span class="mf">0.999</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="c1"># 勾配</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">learning_rate_t</span>  <span class="o">=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta2</span> <span class="o">**</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta1</span> <span class="o">**</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>    
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;W3&#39;</span><span class="p">,</span> <span class="s1">&#39;b1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">m</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">v</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            
+        <span class="n">m</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="n">v</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>            
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-=</span> <span class="n">learning_rate_t</span> <span class="o">*</span> <span class="n">m</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>                
+        
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>        
+        
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>        
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>
+                
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/Adam.png" width="500" height="300"/><figcaption>
+            <h4>Adamで学習を実施するとうまくいく</h4>
+        </figcaption>
+</figure>
+
+<h2 id="23-過学習について">2.3 過学習について</h2>
+<p>過学習とは、学習データにおける誤差とテストデータにおける誤差で乖離が発生することである。これは、学習データに特化しすぎたパラメータが設定され、汎化性能がないモデルと言える。過学習が起きる原因は、パラメータ数が多かったり、パラメータ値が適切でないなど、ネットワークの自由度が多いことが原因で発生する。</p>
+<h3 id="231-正則化">2.3.1 正則化</h3>
+<p>過学習を抑える方法として、正則化がある。これはネットワークの自由度（層数、ノード数、パラメータの値など）を制約することである。正則化手法としては以下の2つがある。</p>
+<ul>
+<li>L1正則化、L2正則化</li>
+<li>ドロップアウト</li>
+</ul>
+<h5 id="確認テスト-1">確認テスト</h5>
+<p>下図について、L1正則化を表しているグラフはどちらか答えよ。</p>
+<h5 id="回答-16">回答</h5>
+<p>右の図（Lasso回帰）</p>
+<h3 id="実装演習-7">実装演習</h3>
+<p>過学習が以下の学習では発生している。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span> <span class="nn">data.mnist</span> <span class="kn">import</span> <span class="n">load_mnist</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">multi_layer_net</span> <span class="kn">import</span> <span class="n">MultiLayerNet</span>
+<span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">optimizer</span>
+
+
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="c1"># 過学習を再現するために、学習データを削減</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+<span class="n">d_train</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">grad</span><span class="p">)</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">)</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>        
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/overfit.png" width="500" height="300"/><figcaption>
+            <h4>過学習が起きている</h4>
+        </figcaption>
+</figure>
+
+<p>続いて、L2正則化を実施し、学習を実施してみる。しかし、依然として過学習は解消されていないように見える。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">optimizer</span>
+
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="c1"># 過学習を再現するために、学習データを削減</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+<span class="n">d_train</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">MultiLayerNet</span><span class="p">(</span><span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_size_list</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">hidden_layer_num</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">hidden_layer_num</span>
+
+<span class="c1"># 正則化強度設定 ======================================</span>
+<span class="n">weight_decay_lambda</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="c1"># =================================================</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">weight_decay</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hidden_layer_num</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span><span class="o">.</span><span class="n">dW</span> <span class="o">+</span> <span class="n">weight_decay_lambda</span> <span class="o">*</span> <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span>
+        <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;Affine&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span><span class="o">.</span><span class="n">db</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">grad</span><span class="p">[</span><span class="s1">&#39;b&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span>        
+        <span class="n">weight_decay</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">weight_decay_lambda</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;W&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span> <span class="o">+</span> <span class="n">weight_decay</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>        
+        
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">)</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>               
+
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/L2.png" width="500" height="300"/><figcaption>
+            <h4>過学習は解消されず</h4>
+        </figcaption>
+</figure>
+
+<h2 id="24-畳み込みニューラルネットワークの概念">2.4 畳み込みニューラルネットワークの概念</h2>
+<p>畳み込み層では、画像の場合、縦・横・チャンネルの3次元のデータをそのまま学習し、次に伝えることができる。つまり、3次元の空間情報も学習できるような層が畳み込み層である。</p>
+<ul>
+<li>
+<p>パディング<br>
+画像の周囲に固定値(例えば0)を埋め込むこと。
+パディングなしで畳み込みをすると元の画像より小さくなるが、パディングをすることでサイズを維持することが出来る。また、パディングなしの場合、画像の端の方は他の部分と比べて畳み込みに使われる回数が少なくなり、特徴として抽出されにくいが、パディングをすることによってより端の方も特徴を抽出できるようになる。</p>
+</li>
+<li>
+<p>ストライド<br>
+フィルタをずらす間隔を指定する方法。何も指定しない場合は、1つずつずらしていく。</p>
+</li>
+<li>
+<p>チャンネル<br>
+空間的な奥行きのことを指す。例えば、カラー画像の場合はRGBの3チャンネルに分けて畳み込みを行う。</p>
+</li>
+<li>
+<p>プーリング層</p>
+<ul>
+<li>最大値プーリング</li>
+<li>平均値プーリング<br>
+対象領域の中からある1つの値を取得する層。
+畳み込みを行った後にプーリングを行うことでそれらしい特徴を持った値のみを抽出することが可能となる。</li>
+</ul>
+</li>
+</ul>
+<h5 id="確認テスト-2">確認テスト</h5>
+<p>サイズ6×6の入力画像を、サイズ2×2のフィルタで畳み込んだ時の出力画像のサイズを答えよ。なおストライドとパディングは1とする。</p>
+<h5 id="回答-17">回答</h5>
+<p>7x7</p>
+<h3 id="実装演習-8">実装演習</h3>
+<p>ここでは実際に畳み込みを行っているソースコードのみ、レポートとして報告をする。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">optimizer</span>
+
+<span class="c1"># データの読み込み</span>
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_mnist</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;データ読み込み完了&#34;</span><span class="p">)</span>
+
+<span class="c1"># 処理に時間のかかる場合はデータを削減 </span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[:</span><span class="mi">5000</span><span class="p">],</span> <span class="n">d_train</span><span class="p">[:</span><span class="mi">5000</span><span class="p">]</span>
+<span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[:</span><span class="mi">1000</span><span class="p">],</span> <span class="n">d_test</span><span class="p">[:</span><span class="mi">1000</span><span class="p">]</span>
+
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">SimpleConvNet</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">),</span> <span class="n">conv_param</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filter_num&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;filter_size&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;pad&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                        <span class="n">hidden_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">weight_init_std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">train_size</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">train_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">accuracies_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">plot_interval</span><span class="o">=</span><span class="mi">10</span>
+
+
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    <span class="n">d_batch</span> <span class="o">=</span> <span class="n">d_train</span><span class="p">[</span><span class="n">batch_mask</span><span class="p">]</span>
+    
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">grad</span><span class="p">)</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">d_batch</span><span class="p">)</span>
+    <span class="n">train_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accr_train</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">d_train</span><span class="p">)</span>
+        <span class="n">accr_test</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">d_test</span><span class="p">)</span>
+        <span class="n">accuracies_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_train</span><span class="p">)</span>
+        <span class="n">accuracies_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accr_test</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Generation: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(トレーニング) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_train</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;                : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. 正答率(テスト) = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">accr_test</span><span class="p">))</span>               
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;training set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">accuracies_test</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s2">&#34;test set&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&#34;lower right&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;accuracy&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># グラフの表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/CNN.png" width="500" height="300"/><figcaption>
+            <h4>畳み込みを使用した学習</h4>
+        </figcaption>
+</figure>
+
+<h2 id="25-最新のcnn">2.5 最新のCNN</h2>
+<p>この章では、過学習を防ぐ施策である、AlexNetという手法について、学習した。
+AlexNetは、Hinton 教授らのチームによって発表された物体認識のためのモデル（アーキテクチャ）である。
+2012年にILSVRC（ImageNet Large Scale Visual Recognition Challenge）で優勝したモデル。</p>
+<p>過学習を防ぐ施策であり、サイズ4096の全結合層の出力にドロップアウトを使用している。</p>
+<p>2012年前までの画像分類チャレンジコンテストにおいて、画像から特徴量を抽出し、その特徴量を用いて画像の分類を行なっていた。当時、画像から特徴量を抽出する際に、人が、物体の色・輝度・形など特徴量を設計していた。そのため、いかに有効な特徴量を設計できることが、画像分類の性能を左右していた。それが、2012年に、人が特徴量を設計しなくても、十分なデータさえ存在すれば、機械自身が特徴量を見つけ出すことが AlexNet によって示された。</p>
+<p>AlexNet は、深さが 8 層の畳み込みニューラルネットワークである。100万枚を超えるイメージで学習させた事前学習済みのネットワークを、ImageNetデータベースから読み込むことができます。この事前学習済みのネットワークは、イメージを 1000 個のオブジェクトカテゴリ (キーボード、マウス、鉛筆、多くの動物など) に分類できる。結果として、このネットワークは広範囲のイメージに対する豊富な特徴表現を学習している。</p>
+<p>参考文献：<br>
+<a href="https://axa.biopapyrus.jp/deep-learning/cnn/image-classification/alexnet.html">https://axa.biopapyrus.jp/deep-learning/cnn/image-classification/alexnet.html</a><br>
+<a href="https://jp.mathworks.com/help/deeplearning/ref/alexnet.html;jsessionid=e166d58061fcf83da3bfb7de7740">https://jp.mathworks.com/help/deeplearning/ref/alexnet.html;jsessionid=e166d58061fcf83da3bfb7de7740</a><br>
+Krizhevsky A, Sutskever I, Hinton GE. ImageNet classification with deep convolutional neural networks. NeurIPS. 2012. DOI: 10.1145/3065386</p>
+<h3 id="実装演習-9">実装演習</h3>
+<p>googleで公開されているAlexNetのpythonモジュールを以下に示す。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">alexnet_v2_arg_scope</span><span class="p">(</span><span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">):</span>
+  <span class="k">with</span> <span class="n">slim</span><span class="o">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">,</span> <span class="n">slim</span><span class="o">.</span><span class="n">fully_connected</span><span class="p">],</span>
+                      <span class="n">activation_fn</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
+                      <span class="n">biases_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+                      <span class="n">weights_regularizer</span><span class="o">=</span><span class="n">slim</span><span class="o">.</span><span class="n">l2_regularizer</span><span class="p">(</span><span class="n">weight_decay</span><span class="p">)):</span>
+    <span class="k">with</span> <span class="n">slim</span><span class="o">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;SAME&#39;</span><span class="p">):</span>
+      <span class="k">with</span> <span class="n">slim</span><span class="o">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">arg_sc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">arg_sc</span>
+
+<span class="k">def</span> <span class="nf">alexnet_v2</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span>
+               <span class="n">num_classes</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+               <span class="n">is_training</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+               <span class="n">dropout_keep_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+               <span class="n">spatial_squeeze</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+               <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;alexnet_v2&#39;</span><span class="p">,</span>
+               <span class="n">global_pool</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+  <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="s1">&#39;alexnet_v2&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">inputs</span><span class="p">])</span> <span class="k">as</span> <span class="n">sc</span><span class="p">:</span>
+    <span class="n">end_points_collection</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">original_name_scope</span> <span class="o">+</span> <span class="s1">&#39;_end_points&#39;</span>
+    <span class="c1"># Collect outputs for conv2d, fully_connected and max_pool2d.</span>
+    <span class="k">with</span> <span class="n">slim</span><span class="o">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">,</span> <span class="n">slim</span><span class="o">.</span><span class="n">fully_connected</span><span class="p">,</span> <span class="n">slim</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">],</span>
+                        <span class="n">outputs_collections</span><span class="o">=</span><span class="p">[</span><span class="n">end_points_collection</span><span class="p">]):</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="mi">4</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">,</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;conv1&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;pool1&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;conv2&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;pool2&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;conv3&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;conv4&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;conv5&#39;</span><span class="p">)</span>
+      <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;pool5&#39;</span><span class="p">)</span>
+
+      <span class="c1"># Use conv2d instead of fully_connected layers.</span>
+      <span class="k">with</span> <span class="n">slim</span><span class="o">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">],</span>
+                          <span class="n">weights_initializer</span><span class="o">=</span><span class="n">trunc_normal</span><span class="p">(</span><span class="mf">0.005</span><span class="p">),</span>
+                          <span class="n">biases_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)):</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;VALID&#39;</span><span class="p">,</span>
+                          <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;fc6&#39;</span><span class="p">)</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">dropout_keep_prob</span><span class="p">,</span> <span class="n">is_training</span><span class="o">=</span><span class="n">is_training</span><span class="p">,</span>
+                           <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;dropout6&#39;</span><span class="p">)</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;fc7&#39;</span><span class="p">)</span>
+        <span class="c1"># Convert end_points_collection into a end_point dict.</span>
+        <span class="n">end_points</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">convert_collection_to_dict</span><span class="p">(</span>
+            <span class="n">end_points_collection</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">global_pool</span><span class="p">:</span>
+          <span class="n">net</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">keep_dims</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;global_pool&#39;</span><span class="p">)</span>
+          <span class="n">end_points</span><span class="p">[</span><span class="s1">&#39;global_pool&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net</span>
+        <span class="k">if</span> <span class="n">num_classes</span><span class="p">:</span>
+          <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">dropout_keep_prob</span><span class="p">,</span> <span class="n">is_training</span><span class="o">=</span><span class="n">is_training</span><span class="p">,</span>
+                             <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;dropout7&#39;</span><span class="p">)</span>
+          <span class="n">net</span> <span class="o">=</span> <span class="n">slim</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                            <span class="n">activation_fn</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                            <span class="n">normalizer_fn</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                            <span class="n">biases_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_initializer</span><span class="p">(),</span>
+                            <span class="n">scope</span><span class="o">=</span><span class="s1">&#39;fc8&#39;</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">spatial_squeeze</span><span class="p">:</span>
+            <span class="n">net</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fc8/squeezed&#39;</span><span class="p">)</span>
+          <span class="n">end_points</span><span class="p">[</span><span class="n">sc</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/fc8&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">net</span>
+      <span class="k">return</span> <span class="n">net</span><span class="p">,</span> <span class="n">end_points</span>
+<span class="n">alexnet_v2</span><span class="o">.</span><span class="n">default_image_size</span> <span class="o">=</span> <span class="mi">224</span>
+</code></pre></div></article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Yuki Ono
+</footer>
+</body>
+</html>

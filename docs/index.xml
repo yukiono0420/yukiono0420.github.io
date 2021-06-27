@@ -13,11 +13,11 @@
     
     
     <item>
-      <title>深層学習前半レポート</title>
-      <link>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E5%89%8D%E5%8D%8A%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</link>
+      <title>深層学習レポートDay1Day2</title>
+      <link>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88day1day2/</link>
       <pubDate>Sun, 27 Jun 2021 16:15:35 +0900</pubDate>
       
-      <guid>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E5%89%8D%E5%8D%8A%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88/</guid>
+      <guid>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88day1day2/</guid>
       <description>1. 深層学習day1レポート 1.0 ニューラルネットワークの全体像 確認テスト1 ディープラーニングは、結局何をやろうとしているか2行以内で述べよ。また、次の中のどの値の最適化が最終目的か。全て選べ。（1分） ①入力値[ X] ②出力値[ Y]③重み[W]④バイアス[b]⑤総入力[u] ⑥中間層入力[ z]⑦学習率[ρ]
 回答 多数の中間層を用いることにより、入力から目的とする数値を出力する変換を行う数学モデルを構築すること。③と④。
 確認テスト2 次のネットワークを紙にかけ。
