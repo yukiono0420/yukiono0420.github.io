@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E検定チャレンジ用">
+    
+    <link rel="shortcut icon" href="https://yukiono0420.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>深層学習レポートDay3</title>
+</head>
+<body><head>
+    
+	
+		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: { equationNumbers: { autoNumber: "AMS" },
+                extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+    });
+
+    MathJax.Hub.Queue(function() {
+        
+        
+        
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+    MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://yukiono0420.github.iocss/mathjax-style.css">
+
+	
+</head>
+
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>深層学習レポートDay3</h1>
+            <div>
+                <time>July 4, 2021</time>
+                </div>
+    </header><h1 id="0-深層学習全体像の復習">0. 深層学習全体像の復習</h1>
+<h2 id="最新のcnn-alexnet">最新のCNN: AlexNet</h2>
+<p>AlexNetとは2012年威開かれた画像認識コンペティションで2位に大差をつけて優勝したモデルである。AlexNetの登場で、ディープラーニングが大きな注目を集めたきっかけとなった。AlexNetのモデル構造は、5層の畳み込み層およびプーリング層など、それに続く3層の全結合層から構成される。AlexNetでは、過学習を防ぐ施策として、サイズ4096の全結合層の出力にドロップアウトを使用している。</p>
+<h5 id="確認テスト">確認テスト</h5>
+<p>サイズ5×5の入力画像を、サイズ3×3のフィルタで畳み込んだ時の出力画像のサイズを答えよ。なおストライドは2、パディングは1とする。</p>
+<h5 id="回答">回答</h5>
+<p>3×3</p>
+<h1 id="section1-再帰型ニューラルネットワークについて">Section1. 再帰型ニューラルネットワークについて</h1>
+<h2 id="11-rnn全体像">1.1 RNN全体像</h2>
+<h3 id="111-rnnとは">1.1.1 RNNとは</h3>
+<p>RNN（再帰型ニューラルネットワーク）とは、時系列データに対応可能な、ニューラルネットワークである。</p>
+<h3 id="112-時系列データ">1.1.2 時系列データ</h3>
+<p>時系列データとは、時間的順序をおって一定間隔ごとに観測され、さらに相互に統計的依存関係が認められるようなデータ系列のことを指す。</p>
+<ul>
+<li>具体例
+<ul>
+<li>音声データ</li>
+<li>テキストデータ</li>
+</ul>
+</li>
+</ul>
+<h3 id="113-rnnの全体像">1.1.3 RNNの全体像</h3>
+<p>RNNでは、時刻t+1における中間層の重み$z_{t+1}$更新の際に、時刻tにおける中間層の重み$z_t$を入力データとして使用している。RNNの特徴としては、時系列モデルを扱うには、初期の状態と過去の時間t-1の状態を保持し、そこから次の時間でのtを再帰的に求める再帰構造が必要になる。</p>
+<p><figure class="center"><img src="/image/RNN%e6%a7%8b%e9%80%a0.png" width="670" height="300"/><figcaption>
+            <h4>RNN構造</h4>
+        </figcaption>
+</figure>
+
+<figure class="center"><img src="/image/RNN%e6%95%b0%e5%bc%8f.png" width="600" height="300"/><figcaption>
+            <h4>RNNを数式で表したもの</h4>
+        </figcaption>
+</figure>
+</p>
+<h5 id="確認テスト1">確認テスト1</h5>
+<p>RNNのネットワークには大きくわけて3つの重みがある。1つは入力から現在の中間層を定義する際にかけられる重み、1つは中間層から出力を定義する際にかけられる重みである。残り1つの重みについて説明せよ。</p>
+<h5 id="回答-1">回答</h5>
+<p>1つ前の時点の中間層から、現在の中間層を定義する際にかけられる重み</p>
+<h2 id="12-bpttbackpropagation-through-time">1.2 BPTT(Backpropagation Through Time)</h2>
+<h3 id="121-bpttとは">1.2.1 BPTTとは</h3>
+<p>BPTT(Backpropagation Through Time)とは、RNNにおいてのパラメータの調整方法の一つであり、時間軸方向への誤差逆伝播法である。</p>
+<h5 id="確認テスト2">確認テスト2</h5>
+<p>連鎖律の原理を使い、dz/dxを求めよ。</p>
+<h5 id="回答-2">回答</h5>
+<p>dz/dx = dz/dt * dt/dx = 2t * 1 = 2(x + y)</p>
+<h3 id="122-bpttの数学的記述">1.2.2 BPTTの数学的記述</h3>
+<p>パラメータの更新式は以下のようになる。
+<figure class="center"><img src="/image/BPTT%e6%95%b0%e5%bc%8f.png" width="400" height="300"/><figcaption>
+            <h4>BPTTにおける各パラメータの更新式</h4>
+        </figcaption>
+</figure>
+</p>
+<h5 id="確認テスト3">確認テスト3</h5>
+<p>下図のy1をx・s0・s1・win・w・woutを用いて数式で表せ。※バイアスは任意の文字で定義せよ。※また中間層の出力にシグモイド関数g(x)を作用させよ。</p>
+<h5 id="回答-3">回答</h5>
+<p>\begin{eqnarray*}
+y_1 &amp;=&amp; g(v_1) = g(W_{out}z_1 + c ) \<br>
+&amp;=&amp; g(W_{out} f(W_{in} x_1 + W z_0 + b ) + c)
+\end{eqnarray*}</p>
+<h3 id="section1-実装演習">Section1 実装演習</h3>
+<p>2進数の繰り上がりをRNNにて学習させる。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">functions</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="c1"># def d_tanh(x):</span>
+
+
+
+<span class="c1"># データを用意</span>
+<span class="c1"># 2進数の桁数</span>
+<span class="n">binary_dim</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="c1"># 最大値 + 1</span>
+<span class="n">largest_number</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">binary_dim</span><span class="p">)</span>
+<span class="c1"># largest_numberまで2進数を用意</span>
+<span class="n">binary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">range</span><span class="p">(</span><span class="n">largest_number</span><span class="p">)],</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">input_layer_size</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">hidden_layer_size</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">output_layer_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">weight_init_std</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">iters_num</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">plot_interval</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># ウェイト初期化 (バイアスは簡単のため省略)</span>
+<span class="n">W_in</span> <span class="o">=</span> <span class="n">weight_init_std</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">input_layer_size</span><span class="p">,</span> <span class="n">hidden_layer_size</span><span class="p">)</span>
+<span class="n">W_out</span> <span class="o">=</span> <span class="n">weight_init_std</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="n">output_layer_size</span><span class="p">)</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">weight_init_std</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="n">hidden_layer_size</span><span class="p">)</span>
+
+<span class="c1"># Xavier</span>
+
+
+<span class="c1"># He</span>
+
+
+
+<span class="c1"># 勾配</span>
+<span class="n">W_in_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">W_in</span><span class="p">)</span>
+<span class="n">W_out_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">W_out</span><span class="p">)</span>
+<span class="n">W_grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+
+<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="n">binary_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="n">binary_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">output_layer_size</span><span class="p">,</span> <span class="n">binary_dim</span><span class="p">))</span>
+
+<span class="n">delta_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">output_layer_size</span><span class="p">,</span> <span class="n">binary_dim</span><span class="p">))</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="n">binary_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">all_losses</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters_num</span><span class="p">):</span>
+    
+    <span class="c1"># A, B初期化 (a + b = d)</span>
+    <span class="n">a_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">largest_number</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">a_bin</span> <span class="o">=</span> <span class="n">binary</span><span class="p">[</span><span class="n">a_int</span><span class="p">]</span> <span class="c1"># binary encoding</span>
+    <span class="n">b_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">largest_number</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">b_bin</span> <span class="o">=</span> <span class="n">binary</span><span class="p">[</span><span class="n">b_int</span><span class="p">]</span> <span class="c1"># binary encoding</span>
+    
+    <span class="c1"># 正解データ</span>
+    <span class="n">d_int</span> <span class="o">=</span> <span class="n">a_int</span> <span class="o">+</span> <span class="n">b_int</span>
+    <span class="n">d_bin</span> <span class="o">=</span> <span class="n">binary</span><span class="p">[</span><span class="n">d_int</span><span class="p">]</span>
+    
+    <span class="c1"># 出力バイナリ</span>
+    <span class="n">out_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">d_bin</span><span class="p">)</span>
+    
+    <span class="c1"># 時系列全体の誤差</span>
+    <span class="n">all_loss</span> <span class="o">=</span> <span class="mi">0</span>    
+    
+    <span class="c1"># 時系列ループ</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">binary_dim</span><span class="p">):</span>
+        <span class="c1"># 入力値</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a_bin</span><span class="p">[</span> <span class="o">-</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">b_bin</span><span class="p">[</span> <span class="o">-</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># 時刻tにおける正解データ</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d_bin</span><span class="p">[</span><span class="n">binary_dim</span> <span class="o">-</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]])</span>
+        
+        <span class="n">u</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">W_in</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">W</span><span class="p">)</span>
+        <span class="n">z</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">u</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">y</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">W_out</span><span class="p">))</span>
+
+
+        <span class="c1">#誤差</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span>
+        
+        <span class="n">delta_out</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_mean_squared_error</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span> <span class="o">*</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_sigmoid</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span>        
+        
+        <span class="n">all_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+
+        <span class="n">out_bin</span><span class="p">[</span><span class="n">binary_dim</span> <span class="o">-</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span>
+    
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">binary_dim</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a_bin</span><span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">b_bin</span><span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>        
+
+        <span class="n">delta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta_out</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">W_out</span><span class="o">.</span><span class="n">T</span><span class="p">))</span> <span class="o">*</span> <span class="n">functions</span><span class="o">.</span><span class="n">d_sigmoid</span><span class="p">(</span><span class="n">u</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 勾配更新</span>
+        <span class="n">W_out_grad</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">[:,</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">delta_out</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">W_grad</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">delta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">W_in_grad</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">delta</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    
+    <span class="c1"># 勾配適用</span>
+    <span class="n">W_in</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">W_in_grad</span>
+    <span class="n">W_out</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">W_out_grad</span>
+    <span class="n">W</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">W_grad</span>
+    
+    <span class="n">W_in_grad</span> <span class="o">*=</span> <span class="mi">0</span>
+    <span class="n">W_out_grad</span> <span class="o">*=</span> <span class="mi">0</span>
+    <span class="n">W_grad</span> <span class="o">*=</span> <span class="mi">0</span>
+    
+
+    <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">plot_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">all_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_loss</span><span class="p">)</span>        
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;iters:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Loss:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">all_loss</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;Pred:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_bin</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;True:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d_bin</span><span class="p">))</span>
+        <span class="n">out_int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">out_bin</span><span class="p">)):</span>
+            <span class="n">out_int</span> <span class="o">+=</span> <span class="n">x</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a_int</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&#34; + &#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">b_int</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&#34; = &#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_int</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;------------&#34;</span><span class="p">)</span>
+
+<span class="n">lists</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">iters_num</span><span class="p">,</span> <span class="n">plot_interval</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">all_losses</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&#34;loss&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/RNN%e5%ad%a6%e7%bf%92%e7%b5%90%e6%9e%9c.png" width="470" height="300"/><figcaption>
+            <h4>RNN学習結果</h4>
+        </figcaption>
+</figure>
+
+<h1 id="section2-lstm">Section2. LSTM</h1>
+<h5 id="確認テスト-1">確認テスト</h5>
+<p>シグモイド関数を微分した時、入力値が0の時に最大値をとる。その値として正しいものを選択肢から選べ。</p>
+<h5 id="回答-4">回答</h5>
+<p>(2) 0.25</p>
+<h2 id="20-lstmの全体像">2.0 LSTMの全体像</h2>
+<p>LSTMの全体像を下記の図に示す。</p>
+<figure class="center"><img src="/image/LSTM%e5%85%a8%e4%bd%93%e5%83%8f.png" width="670" height="300"/><figcaption>
+            <h4>LSTM全体像</h4>
+        </figcaption>
+</figure>
+
+<h2 id="21-cec">2.1 CEC</h2>
+<p>CECとは、中間層の中で「記憶機能」のみを保持するものである。勾配消失・勾配爆発は、勾配が1であれば解決することより、勾配を1とするためにCECが導入され、RNNでは学習する機能と記憶する機能が分離された。(学習の機能については後述）</p>
+<h2 id="22-入力ゲートと出力ゲート">2.2 入力ゲートと出力ゲート</h2>
+<ul>
+<li>入力ゲート：CECに記憶させる情報を調整する</li>
+<li>出力ゲート：CECにて記憶された情報をどのように取り出すかを調整する</li>
+</ul>
+<p>入力ゲート、出力ゲートが追加されることで、それぞれのゲートへの入力値の重みを、重み行列で可変可能としている。</p>
+<h2 id="23-忘却ゲート">2.3 忘却ゲート</h2>
+<p>CECでは過去に記憶した情報が全て残ることから、不要となった過去の情報も記録され続けてしまう。したがって、過去の情報が不要となった時点で忘却する「忘却ゲート」が追加されている。</p>
+<p>\begin{eqnarray*}
+c(t) = i(t) \times a(t) + f(t) \times c(t-1)
+\end{eqnarray*}</p>
+<p>ここで、cがCECの状態を表しており、fが忘却レート・iが入力ゲートの割合・aは活性化出力である。</p>
+<h5 id="確認テスト1-1">確認テスト1</h5>
+<p>以下の文章をLSTMに入力し空欄に当てはまる単語を予測したいとする。文中の「とても」という言葉は空欄の予測においてなくなっても影響を及ぼさないと考えられる。このような場合、どのゲートが作用すると考えられるか。「映画おもしろかったね。ところで、とてもお腹が空いたから何か____。」</p>
+<h5 id="回答-5">回答</h5>
+<p>忘却ゲート</p>
+<h3 id="section2-実装演習">Section2 実装演習</h3>
+<p>LSTMを利用したsin波予測モデルの実装演習結果を記載する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>  
+<span class="kn">from</span> <span class="nn">keras.layers.core</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Activation</span>  
+<span class="kn">from</span> <span class="nn">keras.layers.recurrent</span> <span class="kn">import</span> <span class="n">LSTM</span>
+
+<span class="c1"># パラメータ</span>
+<span class="n">in_out_neurons</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">hidden_neurons</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">length_of_sequences</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>  
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="n">hidden_neurons</span><span class="p">,</span> <span class="n">batch_input_shape</span><span class="o">=</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">length_of_sequences</span><span class="p">,</span> <span class="n">in_out_neurons</span><span class="p">),</span> <span class="n">return_sequences</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>  
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">in_out_neurons</span><span class="p">))</span>  
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s2">&#34;linear&#34;</span><span class="p">))</span>  
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s2">&#34;mean_squared_error&#34;</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&#34;rmsprop&#34;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">nb_epoch</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c1"># 予測</span>
+<span class="n">predicted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="c1"># 描写</span>
+<span class="n">dataf</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">predicted</span><span class="p">[:</span><span class="mi">200</span><span class="p">])</span>
+<span class="n">dataf</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;predict&#34;</span><span class="p">]</span>
+<span class="n">dataf</span><span class="p">[</span><span class="s2">&#34;input&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span>
+<span class="n">dataf</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</code></pre></div><figure class="center"><img src="/image/LSTM%e7%b5%90%e6%9e%9c.png" width="670" height="300"/><figcaption>
+            <h4>LSTM結果</h4>
+        </figcaption>
+</figure>
+
+<h1 id="section3-gru">Section3. GRU</h1>
+<p>Section2で扱ったLSTMでは、入力/出力/忘却ゲートに時刻t,t-1の状態が入力となっており、パラメータ数が非常に多く、計算負荷が高くなってしまうという課題があった。そこで、パラメータ数を大幅に減らし、計算負荷を抑えつつ精度面を担保するGRUが開発された。</p>
+<figure class="center"><img src="/image/GRU%e5%85%a8%e4%bd%93%e5%83%8f.png" width="670" height="300"/><figcaption>
+            <h4>GRU全体像</h4>
+        </figcaption>
+</figure>
+
+<h5 id="確認テスト1-2">確認テスト1</h5>
+<p>LSTMとCECが抱える課題について、それぞれ簡潔に述べよ。</p>
+<h5 id="回答-6">回答</h5>
+<p>LSTM: 計算負荷が高い<br>
+CEC: 記憶能力しかなく、ニューラルネットワークの学習特性が存在しない（→入力/出力ゲートを追加した）</p>
+<h5 id="確認テスト2-1">確認テスト2</h5>
+<p>LSTMとGRUの違いを簡潔に述べよ。</p>
+<h5 id="回答-7">回答</h5>
+<p>LSTMでは、入力/出力/忘却ゲートに時刻t,t-1の状態が入力となっており、パラメータ数が非常に多く、計算負荷が高くなってしまうという課題があった。
+GRUでは、パラメータ数を大幅に減らし、計算負荷を抑えつつ精度面を担保している。</p>
+<h3 id="section3-実装演習">Section3 実装演習</h3>
+<p>GRUを利用した株価予測ソースコードを記載する。GRUはkerasにてmodelが用意されていることから、そのmodelを利用する。
+ここでは、実装したソースコードを記載する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">GRU</span>
+<span class="kn">import</span> <span class="nn">pandas_datareader</span> <span class="kn">as</span> <span class="nn">pdr</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pdr</span><span class="o">.</span><span class="n">get_data_yahoo</span><span class="p">(</span><span class="s2">&#34;AAPL&#34;</span><span class="p">,</span> <span class="s2">&#34;2010-11-01&#34;</span><span class="p">,</span> <span class="s2">&#34;2020-11-01&#34;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&#34;Diff&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&#34;SMA_2&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&#34;Force_Index&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&#34;y&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&#34;Diff&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+   <span class="p">[</span><span class="s2">&#34;Open&#34;</span><span class="p">,</span> <span class="s2">&#34;High&#34;</span><span class="p">,</span> <span class="s2">&#34;Low&#34;</span><span class="p">,</span> <span class="s2">&#34;Close&#34;</span><span class="p">,</span> <span class="s2">&#34;Volume&#34;</span><span class="p">,</span> <span class="s2">&#34;Diff&#34;</span><span class="p">,</span> <span class="s2">&#34;Adj Close&#34;</span><span class="p">],</span>
+   <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="c1"># print(df)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&#34;y&#34;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&#34;y&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+   <span class="n">X</span><span class="p">,</span>
+   <span class="n">y</span><span class="p">,</span>
+   <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+   <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">GRU</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&#34;sigmoid&#34;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&#34;adam&#34;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s2">&#34;binary_crossentropy&#34;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;acc&#34;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+</code></pre></div><h1 id="section4-双方向rnn">Section4. 双方向RNN</h1>
+<p>双方向RNN (Bidirectional RNN)では、過去の情報だけでなく、未来の情報を加味することで、精度を向上させるためのモデルである。双方向RNNは、系列の最初のステップから繰り返して順方向に予想することに加えて、系列の最後のステップt=Tからの逆方向の予測も行う、RNNを双方向形に拡張したモデルである。双方向RNNの実用例として、文章の推敲・機械翻訳等が挙げられる。</p>
+<h5 id="確認テストなし">確認テストなし</h5>
+<h5 id="自信の考察">自信の考察</h5>
+<p>「Bidirectional LSTMを用いた誤字脱字検知システム」という論文を読み、双方向RNNによって誤字脱字検知システムの精度がどのように変化するかを確認した。
+<a href="https://confit.atlas.jp/guide/event-img/jsai2019/3C4-J-9-03/public/pdf?type=in">https://confit.atlas.jp/guide/event-img/jsai2019/3C4-J-9-03/public/pdf?type=in</a></p>
+<h3 id="section4-実装演習">Section4. 実装演習</h3>
+<p>双方向RNNについても、kerasにてmodelが用意されている。
+ここでは双方向LSTMについて実装した結果のモデル構築部分を記載する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#モデルの構築</span>
+
+<span class="c1">#Bidirectional（双方向RNN）</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.layers</span> <span class="kn">import</span> <span class="n">Embedding</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Bidirectional</span><span class="p">,</span> <span class="n">LSTM</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+<span class="c1">#mask_zero = True(0を0埋め用の数値として扱ってくれる)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Embedding</span><span class="p">(</span><span class="mi">17781</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">mask_zero</span> <span class="o">=</span> <span class="bp">True</span><span class="p">))</span>
+<span class="c1">#LSTM層(return_sequences=True:完全な系列を返す（Flase:最後の出力を返す（LSTMを多層でできる））)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="bp">True</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Bidirectional</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">32</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">activation</span> <span class="o">=</span> <span class="s1">&#39;softmax&#39;</span><span class="p">))</span>
+</code></pre></div><h1 id="section5-rnnでの自然言語処理seq2seq">Section5. RNNでの自然言語処理：Seq2Seq</h1>
+<h2 id="50-seqseqとは">5.0 Seqseqとは</h2>
+<p>Seq2seqとは、Encoder-Decoderモデルの一種であり、具体的には機械対話や、機械翻訳などで利用されている。Seq2Seqの全体像を下記に示す。
+<figure class="center"><img src="/image/seq2seq%e5%85%a8%e4%bd%93%e5%83%8f.png" width="670" height="300"/><figcaption>
+            <h4>seq2seq全体像</h4>
+        </figcaption>
+</figure>
+</p>
+<h2 id="51-encoder-rnn">5.1 Encoder RNN</h2>
+<p>ユーザがインプットしたテキストデータを、単語等のトークンに区切って渡す構造のこと。</p>
+<ul>
+<li>Taking: 文章を単語等のトークンごとに分割し、トークンごとのIDに分割する。</li>
+<li>Embedding: IDから、そのトークンを表す分散表現ベクトルに変換する。</li>
+</ul>
+<p>(例)
+昨日　私　は　刺身　を　食べ　ました　。</p>
+<h2 id="52-decoder-rnn">5.2 Decoder RNN</h2>
+<p>システムがアウトプットしたデータを、単語等のトークンごとに生成する構造のこと。</p>
+<h5 id="確認テスト1-3">確認テスト1</h5>
+<p>下記の選択肢から、seq2seqについて説明しているものを選べ。<br>
+（1）時刻に関して順方向と逆方向のRNNを構成し、それら2つの中間層表現を特徴量として利用するものである。<br>
+（2）RNNを用いたEncoder-Decoderモデルの一種であり、機械翻訳などのモデルに使われる。<br>
+（3）構文木などの木構造に対して、隣接単語から表現ベクトル（フレーズ）を作るという演算を再帰的に行い（重みは共通）、文全体の表現ベクトルを得るニューラルネットワークである。<br>
+（4）RNNの一種であり、単純なRNNにおいて問題となる勾配消失問題をCECとゲートの概念を導入することで解決したものである</p>
+<h5 id="回答-8">回答</h5>
+<p>(2)</p>
+<h2 id="53-hred">5.3 HRED</h2>
+<p>Seq2seqの課題としては、一問一答にしか対応できないというものがある。この課題を解決したものがHREDである。HREDでは、過去n-1 個の発話から次の発話を生成する。Seq2seqでは、会話の文脈無視で応答がなされたが、HREDでは前の単語の流れに即して応答されるため、より人間らしい文章が生成される。HREDは、Seq2Seq+ Context RNNで構成されており、過去の発話の履歴を加味した返答をできる。</p>
+<p>※Context RNN:<br>
+Encoder のまとめた各文章の系列をまとめて、これまでの会話コンテキスト全体を表すベクトルに変換する構造</p>
+<h2 id="54-vhred">5.4 VHRED</h2>
+<p>HREDにVAE(5.5章にて詳細を述べる)の潜在変数の概念を追加したもので、HREDの課題を解決した構造になっている。</p>
+<h5 id="確認テスト2-2">確認テスト2</h5>
+<p>seq2seqとHRED、HREDとVHREDの違いを簡潔に述べよ。</p>
+<h5 id="回答-9">回答</h5>
+<p>seq2seqでは一問一答にしか対応できないが、HREDでは過去の発話から次の発話を生成するため、文脈を考慮した人間らしい会話のさいげんをすることができる。<br>
+VHREDでは、HREDにVAEの潜在変数の概念を追加したもので、HREDの改良版である。</p>
+<h2 id="55-vae">5.5 VAE</h2>
+<h3 id="551-オートエンコーダ">5.5.1 オートエンコーダ</h3>
+<p>オートエンコーダとは教師なし学習の一つであり、学習時の入力データは訓練データのみで教師データを使用しないのが特徴。MNISTの場合、28×28の数字を入れて、同じ画像を出力するニューラルネットワークということになる。入力データから潜在変数zに変換するニューラルネットワークをEncoder、逆に潜在変数zをインプットとして元画像を復元するニューラルネットワークをDecoderとなる。オートエンコーダのメリットとして、次元削減が行えることが挙げられる。</p>
+<h3 id="552-vae">5.5.2 VAE</h3>
+<p>通常のオートエンコーダーの場合、何かしら潜在変数zにデータを押し込めているものの、その構造がどのような状態かわからないという欠点があるが、VAEはこの潜在変数zに確率分布$N(0,1$を仮定したものである。その結果、VAEでは、データを潜在変数zの確率分布という構造に押し込めることを可能とする。</p>
+<h5 id="確認テスト3-1">確認テスト3</h5>
+<p>VAEに関する下記の説明文中の空欄に当てはまる言葉を答えよ。自己符号化器の潜在変数に____を導入したもの。</p>
+<h5 id="回答-10">回答</h5>
+<p>確率分布</p>
+<h3 id="section5-実装演習">Section5 実装演習</h3>
+<p>kerasにて用意されているモデルを利用し、seq2seqの実装を行う。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">LSTM</span><span class="p">,</span> <span class="n">Input</span>
+
+<span class="n">n_in</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 入力層のニューロン数</span>
+<span class="n">n_mid</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># 中間層のニューロン数</span>
+<span class="n">n_out</span> <span class="o">=</span> <span class="n">n_in</span>  <span class="c1"># 出力層のニューロン数</span>
+</code></pre></div><p>encoderの構築</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">encoder_input</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_rnn</span><span class="p">,</span> <span class="n">n_in</span><span class="p">))</span>
+<span class="n">encoder_lstm</span> <span class="o">=</span> <span class="n">LSTM</span><span class="p">(</span><span class="n">n_mid</span><span class="p">,</span> <span class="n">return_state</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_state_h</span><span class="p">,</span> <span class="n">encoder_state_c</span> <span class="o">=</span> <span class="n">encoder_lstm</span><span class="p">(</span><span class="n">encoder_input</span><span class="p">)</span>
+<span class="n">encoder_state</span> <span class="o">=</span> <span class="p">[</span><span class="n">encoder_state_h</span><span class="p">,</span> <span class="n">encoder_state_c</span><span class="p">]</span>
+</code></pre></div><p>decoderの構築</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">decoder_input</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_rnn</span><span class="p">,</span> <span class="n">n_in</span><span class="p">))</span>
+<span class="n">decoder_lstm</span> <span class="o">=</span> <span class="n">LSTM</span><span class="p">(</span><span class="n">n_mid</span><span class="p">,</span> <span class="n">return_sequences</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">return_state</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">decoder_output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">decoder_lstm</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="n">encoder_state</span> <span class="p">)</span>
+<span class="n">decoder_dense</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">n_out</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+<span class="n">decoder_output</span> <span class="o">=</span> <span class="n">decoder_dense</span><span class="p">(</span><span class="n">decoder_output</span><span class="p">)</span>
+</code></pre></div><p>modelの構築</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">([</span><span class="n">encoder_input</span><span class="p">,</span> <span class="n">decoder_input</span><span class="p">],</span> <span class="n">decoder_output</span><span class="p">)</span>
+</code></pre></div><h1 id="section6-word2vec">Section.6 Word2vec</h1>
+<p>RNNの課題として、単語のような可変長の文字列をニューラルネットワークに与えることはできない。そのため、固定長形式で単語を表す必要がある。word2vecでは、学習データからボキャブラリを作成する。
+word2vecのメリットとしては、大規模データの分散表現の学習が、現実的な計算速度とメモリ量で実現可能にした、という点が挙げられる。</p>
+<p>(具体例)<br>
+Ex) I want to eat apples. I like apples.<br>
+→ {apples,eat,I,like,to,want}</p>
+<p>Apples を入力とする場合には、入力層には以下のベクトルが入力され、このベクトルをone-hotベクトルという。</p>
+<p>1&hellip;apples<br>
+0&hellip;eat<br>
+0&hellip;I<br>
+0&hellip;like<br>
+0&hellip;to<br>
+&hellip;</p>
+<p>word2vecでは、ボキャブラリ×任意の単語ベクトル次元で重み行列が誕生する。</p>
+<h5 id="確認テストなし-1">確認テストなし</h5>
+<h5 id="考察-word2vecの応用例">考察: word2vecの応用例</h5>
+<ul>
+<li>fastText<br>
+Word2Vecを考案したトマス・ミコロフが、GoogleからFacebookの人工知能研究所「Facebook AI Research」に移籍し、Word2Vecを発展させる形で生み出したのがfastTextです。その特徴は、圧倒的な単語学習スピードの速さにあります。Facebookは、標準的なCPUを用いた場合でも、10分以内で10億語を学習でき、5分以内で50万もの文を30万のカテゴリーに分類できると公式発表で述べています。</li>
+</ul>
+<p><a href="https://fasttext.cc">https://fasttext.cc</a></p>
+<ul>
+<li>
+<p>Doc2Vec
+Doc2Vecは、文章間の類似度やベクトル計算を可能にする手法であり、Paragraph2Vecとも呼ばれます。Googleの研究者であるクオーク・リーが2014年に考案しました。Word2Vecは各単語をベクトルとして処理するのに対し、Doc2Vecでは単語の集合である文章・文書単位でベクトルを割り当てるのが特徴です。たとえば、ニュース記事同士の類似度、レジュメ同士の類似度、本同士の類似度、もちろん人のプロフィールと本の類似度なども算出することができます。テキストで表されているもの同士であれば解析可能です。</p>
+</li>
+<li>
+<p>word2vecの活用例：チャットボット
+LINEなどで使われるような、くだけた表現や口語混じりの言語は「不自然言語」とも呼ばれます。明治大学の「Word2Vecを用いた顔文字の感情分類」という研究では、不自然言語のひとつでもある「顔文字」に話者が込める感情を分析しています。ツイッターのツイートから、顔文字と感情表現の単語を抽出しベクトル化し、顔文字のベクトルと近い感情表現単語のベクトルを照合することで、顔文字に込められる感情を分析しています。</p>
+</li>
+</ul>
+<h3 id="section6-実装演習">Section6 実装演習</h3>
+<p>pythonのフリーライブラリのgensimを使用してword2vec実装した。以下では、モデル構築部分までを記載する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">word2vec</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> : </span><span class="si">%(levelname)s</span><span class="s1"> : </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">word2vec</span><span class="o">.</span><span class="n">Text8Corpus</span><span class="p">(</span><span class="s1">&#39;./wiki_wakati.txt&#39;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">word2vec</span><span class="o">.</span><span class="n">Word2Vec</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">wv</span><span class="o">.</span><span class="n">save_word2vec_format</span><span class="p">(</span><span class="s2">&#34;./wiki.vec.pt&#34;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div><h1 id="section7-attention-mechanism">Section7 Attention Mechanism</h1>
+<p>seq2seqの問題は長い文章への対応が困難である。seq2seqでは、2単語でも100単語でも、固定次元ベクトルの中に入力する必要がある。そのため、文章が長くなるほどそのシーケンスの内部表現の次元も大きくなっていく仕組みが必要となり、それで開発されたのがAttention Mechanismである。</p>
+<p>(具体例)
+<figure class="center"><img src="/image/atten%e5%85%b7%e4%bd%93%e4%be%8b.png" width="670" height="300"/><figcaption>
+            <h4>Attention Mechanismの具体例</h4>
+        </figcaption>
+</figure>
+</p>
+<p>※「a」については日本語で意味を持っておらず、その他の単語との関連度が低いが、「I」については「私」との関連度が高い。</p>
+<h5 id="確認テスト-2">確認テスト</h5>
+<p>RNNとword2vec、seq2seqとAttentionの違いを簡潔に述べよ。</p>
+<h5 id="回答-11">回答</h5>
+<p>RNNでは、単語のような可変長の文字列をニューラルネットワークに与えることはできないため、固定長形式で単語を表す必要がある。一方、word2vecでは、学習データからボキャブラリを作成する。
+word2vecのメリットとしては、大規模データの分散表現の学習が、現実的な計算速度とメモリ量で実現可能にしたという点が挙げられる。</p>
+<p>seq2seqの問題は長い文章への対応が困難である。seq2seqでは、2単語でも100単語でも、固定次元ベクトルの中に入力する必要がある。そのため、文章が長くなるほどそのシーケンスの内部表現の次元も大きくなっていく仕組みが必要となり、それで開発されたのがAttention Mechanismである。</p>
+<h3 id="section7-実装演習">Section7 実装演習</h3>
+<p>以下では、Attentionの基本的なソースコードを実装した結果を記載する。なお、入出力は input と memory である。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">SimpleAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    Attention の説明をするための、 Multi-head ではない単純な Attention です
+</span><span class="s1">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        コンストラクタです。
+</span><span class="s1">        :param depth: 隠れ層及び出力の次元
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;q_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;k_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;v_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_dense_layer&#39;</span><span class="p">)</span>
+
+     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        モデルの実行を行います。
+</span><span class="s1">        :param input: query のテンソル
+</span><span class="s1">        :param memory: query に情報を与える memory のテンソル
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, depth]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>  <span class="c1"># [batch_size, m_length, depth]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="c1"># ここで q と k の内積を取ることで、query と key の関連度のようなものを計算します。</span>
+        <span class="n">logit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, k_length]</span>
+
+        <span class="c1"># softmax を取ることで正規化します</span>
+        <span class="n">attention_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention_weight&#39;</span><span class="p">)</span>
+
+        <span class="c1"># 重みに従って value から情報を引いてきます</span>
+        <span class="n">attention_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">attention_weight</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, depth]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span><span class="p">(</span><span class="n">attention_output</span><span class="p">)</span>
+</code></pre></div></article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Yuki Ono
+</footer>
+</body>
+</html>

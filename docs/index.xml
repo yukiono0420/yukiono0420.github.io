@@ -6,9 +6,31 @@
     <description>Recent content in Home on ラビットチャレンジレポート提出用サイト</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Sun, 27 Jun 2021 16:15:35 +0900</lastBuildDate>
+    <lastBuildDate>Sun, 04 Jul 2021 23:36:41 +0900</lastBuildDate>
     
 	<atom:link href="https://yukiono0420.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+    <item>
+      <title>深層学習レポートDay3</title>
+      <link>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88day3/</link>
+      <pubDate>Sun, 04 Jul 2021 23:36:41 +0900</pubDate>
+      
+      <guid>https://yukiono0420.github.io/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88day3/</guid>
+      <description>0. 深層学習全体像の復習 最新のCNN: AlexNet AlexNetとは2012年威開かれた画像認識コンペティションで2位に大差をつけて優勝したモデルである。AlexNetの登場で、ディープラーニングが大きな注目を集めたきっかけとなった。AlexNetのモデル構造は、5層の畳み込み層およびプーリング層など、それに続く3層の全結合層から構成される。AlexNetでは、過学習を防ぐ施策として、サイズ4096の全結合層の出力にドロップアウトを使用している。
+確認テスト サイズ5×5の入力画像を、サイズ3×3のフィルタで畳み込んだ時の出力画像のサイズを答えよ。なおストライドは2、パディングは1とする。
+回答 3×3
+Section1. 再帰型ニューラルネットワークについて 1.1 RNN全体像 1.1.1 RNNとは RNN（再帰型ニューラルネットワーク）とは、時系列データに対応可能な、ニューラルネットワークである。
+1.1.2 時系列データ 時系列データとは、時間的順序をおって一定間隔ごとに観測され、さらに相互に統計的依存関係が認められるようなデータ系列のことを指す。
+ 具体例  音声データ テキストデータ    1.1.3 RNNの全体像 RNNでは、時刻t+1における中間層の重み$z_{t+1}$更新の際に、時刻tにおける中間層の重み$z_t$を入力データとして使用している。RNNの特徴としては、時系列モデルを扱うには、初期の状態と過去の時間t-1の状態を保持し、そこから次の時間でのtを再帰的に求める再帰構造が必要になる。
+ RNN構造    RNNを数式で表したもの   確認テスト1 RNNのネットワークには大きくわけて3つの重みがある。1つは入力から現在の中間層を定義する際にかけられる重み、1つは中間層から出力を定義する際にかけられる重みである。残り1つの重みについて説明せよ。
+回答 1つ前の時点の中間層から、現在の中間層を定義する際にかけられる重み
+1.2 BPTT(Backpropagation Through Time) 1.2.1 BPTTとは BPTT(Backpropagation Through Time)とは、RNNにおいてのパラメータの調整方法の一つであり、時間軸方向への誤差逆伝播法である。
+確認テスト2 連鎖律の原理を使い、dz/dxを求めよ。
+回答 dz/dx = dz/dt * dt/dx = 2t * 1 = 2(x + y)
+1.2.2 BPTTの数学的記述 パラメータの更新式は以下のようになる。  BPTTにおける各パラメータの更新式   確認テスト3 下図のy1をx・s0・s1・win・w・woutを用いて数式で表せ。※バイアスは任意の文字で定義せよ。※また中間層の出力にシグモイド関数g(x)を作用させよ。</description>
+    </item>
     
     
     
