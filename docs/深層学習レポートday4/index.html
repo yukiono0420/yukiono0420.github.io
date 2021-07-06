@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E検定チャレンジ用">
+    
+    <link rel="shortcut icon" href="https://yukiono0420.github.io/favicon.ico">
+    
+    <link rel="stylesheet" href="/css/style.min.css">
+
+    <title>深層学習レポートDay4</title>
+</head>
+<body><head>
+    
+	
+		<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: { equationNumbers: { autoNumber: "AMS" },
+                extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+    });
+
+    MathJax.Hub.Queue(function() {
+        
+        
+        
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+    MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://yukiono0420.github.iocss/mathjax-style.css">
+
+	
+</head>
+
+<main id="content">
+<article>
+    <header id="post-header">
+        <h1>深層学習レポートDay4</h1>
+            <div>
+                <time>July 6, 2021</time>
+                </div>
+    </header><h1 id="section1-強化学習">Section1. 強化学習</h1>
+<h2 id="11-強化学習とは">1.1 強化学習とは</h2>
+<p>強化学習おは、行動の結果として与えられる利益（報酬）を元に、行動を決定する原理を改善していく仕組みのことを、強化学習という。
+長期的に報酬を最大化できるように環境の中で行動を選択できるエージェントを作ることを目標とする機械学習の一分野である。</p>
+<h2 id="12-強化学習の応用例">1.2 強化学習の応用例</h2>
+<p>マーケティング（会社の販売促進部）を応用例にあげる。</p>
+<ul>
+<li>エージェント：プロフィールと購入履歴に基づいて、キャンペーンメールを送る顧客を決めるソフトウェアである。</li>
+<li>行動：顧客ごとに送信、非送信のふたつの行動を選ぶことになる。</li>
+<li>報酬：キャンペーンのコストという負の報酬とキャンペーンで生み出されると推測される売上という正の報酬を受ける。</li>
+</ul>
+<h2 id="13-探索と利用のトレードオフ">1.3 探索と利用のトレードオフ</h2>
+<p>強化学習の場合、不完全な知識を元に行動しながら、データを収集し、最適な行動を見つけていく。過去のデータでベストとされる行動のみを常にとり続ければ、他にもっとベストな行動を見つけることはできない。これはつまり「探索が足りない状態」である。また、未知の行動のみを常にとり続ければ、過去の経験を活かすことができない。これはつまり「利用が足りない状態」である。「探索」と「利用」はトレードオフの関係にあることがわかる。</p>
+<h2 id="14-強化学習イメージ">1.4 強化学習イメージ</h2>
+<figure class="center"><img src="/image/%e5%bc%b7%e5%8c%96%e5%ad%a6%e7%bf%92%e3%82%a4%e3%83%a1%e3%83%bc%e3%82%b8.png" width="470" height="300"/><figcaption>
+            <h4>強化学習イメージ</h4>
+        </figcaption>
+</figure>
+
+<h2 id="15-強化学習の差分">1.5 強化学習の差分</h2>
+<p>強化学習と通常の教師あり・なし学習との違いを述べる。</p>
+<ul>
+<li>結論：目標が異なっている
+<ul>
+<li>教師なし・あり学習：データに含まれるパターンを見つけ出す及びそのデータから予測することが目標</li>
+<li>強化学習：優れた方策を見つけることが目標</li>
+</ul>
+</li>
+</ul>
+<h2 id="16-行動価値関数">1.6 行動価値関数</h2>
+<p>価値関数には2種類ある。</p>
+<ul>
+<li>状態価値関数：ある状態の価値に注目する関数</li>
+<li>行動価値関数：状態と価値を組み合わせた価値に注目する関数</li>
+</ul>
+<h2 id="17-方策関数">1.7 方策関数</h2>
+<p>方策関数とは、方策ベースの強化学習手法において、ある状態でどのような行動をとるのかの確率を与える関数のことである。
+方策をモデル化して最適化する手法として、方策勾配法がある。
+\begin{eqnarray*}
+\theta^{(t+1)} = \theta^{(t)} + \epsilon \nabla J(\theta)
+\end{eqnarray*}
+ここで、$J$は方策の良さを表している。</p>
+<h2 id="18-方策勾配法について">1.8 方策勾配法について</h2>
+<p>定義方法は以下の通り。</p>
+<ul>
+<li>平均報酬</li>
+<li>割引報酬和<br>
+上記の定義に対応して、行動価値関数:Q(s,a)の定義を行い、方策勾配定理が成り立つ。
+<figure class="center"><img src="/image/%e5%8b%be%e9%85%8d%e6%96%b9%e7%ad%96%e5%92%8c.png" width="400" height="50"/><figcaption>
+            <h4>勾配方策定理</h4>
+        </figcaption>
+</figure>
+</li>
+</ul>
+<h3 id="section1-考察--実装演習">Section1. 考察 &amp; 実装演習</h3>
+<p>今回は強化学習を使用しているQ学習について、実装を行なった。
+参考：https://www.tcom242242.net/entry/ai-2/強化学習/【強化学習、入門】q学習_迷路を例に/</p>
+<h4 id="q学習とは">Q学習とは</h4>
+<p>Q学習は代表的な強化学習手法の１つである。Q学習では、各状態sに対する各行動aのQ値を保存しておくQテーブルQ(s,a)というテーブルを保持しています。Q学習ではこのQテーブルの値を以下の式によって更新します。</p>
+<p><figure class="center"><img src="/image/Q%e3%83%86.png" width="600" height="300"/><figcaption>
+            <h4>Qテーブル</h4>
+        </figcaption>
+</figure>
+
+<figure class="center"><img src="/image/Q%e5%ad%a6%e7%bf%92.png" width="780" height="200"/><figcaption>
+            <h4>Q学習</h4>
+        </figcaption>
+</figure>
+</p>
+<h4 id="学習手順">学習手順</h4>
+<p>アルゴリズムは以下の順序で進んでいく。</p>
+<ol>
+<li>現在の状態sで、Q(s,a)に従ってある行動aを選択し実行</li>
+<li>環境から遷移先状態s′と報酬rを受け取る</li>
+<li>得られた遷移先状態s′と報酬rを元に以下のようにQ(s,a)を更新
+Q(s,a)←Q(s,a)+α(r+γmaxa′Q(s′,a′)−Q(s,a))</li>
+<li>ステップ1〜3を繰り返す</li>
+</ol>
+<h4 id="実装演習">実装演習</h4>
+<p>Q学習のエージェントとして、以下のソースコードを用意する。
+actメソッドでエージェントは行動選択をします。 ここではε-greedy手法によって行動選択をします。<br>
+observeメソッドで遷移先の状態と報酬を観測します。 ここでは報酬が観測したときにのみ学習するようにしています。<br>
+learnメソッドでQ値の更新をしています。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="k">class</span> <span class="nc">QLearningAgent</span><span class="p">:</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        Q学習 エージェント
+</span><span class="s2">    &#34;&#34;&#34;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">epsilon</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">gamma</span><span class="o">=.</span><span class="mi">99</span><span class="p">,</span>
+            <span class="n">actions</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">observation</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ini_state</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_state</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_action</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_q_values</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_init_q_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">           Q テーブルの初期化
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">q_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">q_values</span>
+
+    <span class="k">def</span> <span class="nf">init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            状態の初期化
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_state</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ε-greedy選択</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>  <span class="c1"># random行動</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>   <span class="c1"># greedy 行動</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_action</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="k">return</span> <span class="n">action</span>
+
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_state</span><span class="p">,</span> <span class="n">reward</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            次の状態と報酬の観測
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">next_state</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">next_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">next_state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">:</span>  <span class="c1"># 始めて訪れる状態であれば</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="n">next_state</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_state</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">next_state</span>
+
+        <span class="k">if</span> <span class="n">reward</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reward_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            Q値の更新
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_state</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_action</span><span class="p">]</span>  <span class="c1"># Q(s, a)</span>
+        <span class="n">max_q</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">])</span>  <span class="c1"># max Q(s&#39;)</span>
+        <span class="c1"># Q(s, a) = Q(s, a) + alpha*(r+gamma*maxQ(s&#39;)-Q(s, a))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_state</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_action</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span> <span class="o">+</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">reward</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">max_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">q</span><span class="p">))</span>
+</code></pre></div><p>続いて、グリッドワールドクラスでは、 エージェントからの行動を受け取り、遷移先状態や報酬を返します。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="k">class</span> <span class="nc">GridWorld</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&#34;N&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># 通常</span>
+            <span class="s2">&#34;G&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># ゴール</span>
+            <span class="s2">&#34;W&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1"># 壁</span>
+            <span class="s2">&#34;T&#34;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>  <span class="c1"># トラップ</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&#34;UP&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&#34;DOWN&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&#34;LEFT&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&#34;RIGHT&#34;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span>   <span class="c1"># エージェントのスタート地点(x, y)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">)</span>  <span class="c1"># エージェントがいる地点</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            行動の実行
+</span><span class="s2">            状態, 報酬、ゴールしたかを返却
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span><span class="p">)</span>
+
+        <span class="c1"># 移動可能かどうかの確認。移動不可能であれば、ポジションはそのままにマイナス報酬</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_possible_action</span><span class="p">(</span><span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;UP&#34;</span><span class="p">]:</span>
+            <span class="n">to_y</span> <span class="o">+=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;DOWN&#34;</span><span class="p">]:</span>
+            <span class="n">to_y</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;LEFT&#34;</span><span class="p">]:</span>
+            <span class="n">to_x</span> <span class="o">+=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;RIGHT&#34;</span><span class="p">]:</span>
+            <span class="n">to_x</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">is_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_end_episode</span><span class="p">(</span><span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span><span class="p">)</span>  <span class="c1"># エピソードの終了の確認</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_reward</span><span class="p">(</span><span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">is_goal</span>
+
+    <span class="k">def</span> <span class="nf">_is_end_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            x, yがエピソードの終了かの確認。
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;G&#34;</span><span class="p">]:</span>      <span class="c1"># ゴール</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;T&#34;</span><span class="p">]:</span>    <span class="c1"># トラップ</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_wall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            x, yが壁かどうかの確認
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;W&#34;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_possible_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">            実行可能な行動かどうかの判定
+</span><span class="s2">        &#34;&#34;&#34;</span>
+        <span class="n">to_x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">to_y</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;UP&#34;</span><span class="p">]:</span>
+            <span class="n">to_y</span> <span class="o">+=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;DOWN&#34;</span><span class="p">]:</span>
+            <span class="n">to_y</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;LEFT&#34;</span><span class="p">]:</span>
+            <span class="n">to_x</span> <span class="o">+=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">[</span><span class="s2">&#34;RIGHT&#34;</span><span class="p">]:</span>
+            <span class="n">to_x</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">to_y</span> <span class="ow">or</span> <span class="mi">0</span> <span class="o">&gt;</span> <span class="n">to_y</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">to_x</span> <span class="ow">or</span> <span class="mi">0</span> <span class="o">&gt;</span> <span class="n">to_x</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_wall</span><span class="p">(</span><span class="n">to_x</span><span class="p">,</span> <span class="n">to_y</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_compute_reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;N&#34;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;G&#34;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">100</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">filed_type</span><span class="p">[</span><span class="s2">&#34;T&#34;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">100</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span>
+</code></pre></div><p>Q学習エージェントとグリッドワールドを組み合わせて、エージェントに学習させます。 以下のコードを実行するとエピソード毎に得られる報酬をプロットします。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+
+<span class="c1"># 定数</span>
+<span class="n">NB_EPISODE</span> <span class="o">=</span> <span class="mi">100</span>    <span class="c1"># エピソード数</span>
+<span class="n">EPSILON</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span>    <span class="c1"># 探索率</span>
+<span class="n">ALPHA</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span>      <span class="c1"># 学習率</span>
+<span class="n">GAMMA</span> <span class="o">=</span> <span class="o">.</span><span class="mi">90</span>     <span class="c1"># 割引率</span>
+<span class="n">ACTIONS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># 行動の集合</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">grid_env</span> <span class="o">=</span> <span class="n">GridWorld</span><span class="p">()</span>  <span class="c1"># grid worldの環境の初期化</span>
+    <span class="n">ini_state</span> <span class="o">=</span> <span class="n">grid_env</span><span class="o">.</span><span class="n">start_pos</span>  <span class="c1"># 初期状態（エージェントのスタート地点の位置）</span>
+    <span class="c1"># エージェントの初期化</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">QLearningAgent</span><span class="p">(</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">ALPHA</span><span class="p">,</span>
+        <span class="n">gamma</span><span class="o">=</span><span class="n">GAMMA</span><span class="p">,</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">,</span>  <span class="c1"># 探索率</span>
+        <span class="n">actions</span><span class="o">=</span><span class="n">ACTIONS</span><span class="p">,</span>   <span class="c1"># 行動の集合</span>
+        <span class="n">observation</span><span class="o">=</span><span class="n">ini_state</span><span class="p">)</span>  <span class="c1"># Q学習エージェント</span>
+    <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># 評価用報酬の保存</span>
+    <span class="n">is_end_episode</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># エージェントがゴールしてるかどうか？</span>
+
+    <span class="c1"># 実験</span>
+    <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NB_EPISODE</span><span class="p">):</span>
+        <span class="n">episode_reward</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 1エピソードの累積報酬</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">is_end_episode</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>    <span class="c1"># ゴールするまで続ける</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">act</span><span class="p">()</span>  <span class="c1"># 行動選択</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">is_end_episode</span> <span class="o">=</span> <span class="n">grid_env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="p">)</span>   <span class="c1"># 状態と報酬の観測</span>
+            <span class="n">episode_reward</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+        <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">episode_reward</span><span class="p">))</span>  <span class="c1"># このエピソードの平均報酬を与える</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">grid_env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>  <span class="c1"># 初期化</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>    <span class="c1"># エージェントを初期位置に</span>
+        <span class="n">is_end_episode</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c1"># 結果のプロット</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">NB_EPISODE</span><span class="p">),</span> <span class="n">rewards</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;episode&#34;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;reward&#34;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&#34;result.jpg&#34;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div><p>以下、実行結果である。エピソードごとの報酬結果がプロットされており、学習が進むにつれて高い報酬がもらえていることがわかる。
+<figure class="center"><img src="/image/Q%e7%b5%90%e6%9e%9c.png" width="600" height="300"/><figcaption>
+            <h4>Q学習による結果</h4>
+        </figcaption>
+</figure>
+</p>
+<h1 id="section2-alpha-go">Section2. Alpha Go</h1>
+<p>Alpha Goの学習Stepは以下のステップで行われる。</p>
+<ol>
+<li>教師あり学習によるRollOutPolicyとPolicyNetの学習</li>
+<li>強化学習によるPolicyNetの学習</li>
+<li>強化学習によるValueNetの学習</li>
+</ol>
+<h2 id="policynetの教師あり学習">PolicyNetの教師あり学習</h2>
+<p>KGS Go Server（ネット囲碁対局サイト）の棋譜データから3000万局面分の教師を用意し、教師と同じ着手を予測できるよう学習を行った。具体的には、教師が着手した手を1とし残りを0とした19×19次元の配列を教師とし、それを分類問題として学習した。この学習で作成したPolicyNetは57%ほどの精度である。</p>
+<h2 id="policynetの強化学習">PolicyNetの強化学習</h2>
+<p>現状のPolicyNetとPolicyPoolからランダムに選択されたPolicyNetと対局シミュレーションを行い、その結果を用いて方策勾配法で学習を行った。PolicyPoolとは、PolicyNetの強化学習の過程を500Iteraionごとに記録し保存しておいたものである。現状のPolicyNet同士の対局ではなく、PolicyPoolに保存されているものとの対局を使用する理由は、対局に幅を持たせて過学習を防ごうというのが主である。この学習をminibatch size 128で1万回行った。</p>
+<h2 id="valuenetの学習">ValueNetの学習</h2>
+<p>PolicyNetを使用して対局シミュレーションを行い、その結果の勝敗を教師として学習した。
+教師データ作成の手順は</p>
+<ol>
+<li>まずSL PolicyNet(教師あり学習で作成したPolicyNet)でN手まで打つ。</li>
+<li>N+1手目の手をランダムに選択し、その手で進めた局面をS（N+1）とする。</li>
+<li>S（N+1）からRLPolicyNet（強化学習で作成したPolicyNet）で終局まで打ち、その勝敗報酬をRとする。</li>
+</ol>
+<p>S(N+1)とRを教師データ対とし、損失関数を平均二乗誤差とし、回帰問題として学習した。この学習をminibatch size 32で5000万回行ったN手までとN+1手からのPolicyNetを別々にしてある理由は、過学習を防ぐためであると論文では説明されている。</p>
+<h1 id="section3-軽量化高速化技術">Section3. 軽量化・高速化技術</h1>
+<h2 id="分散深層学習とは">分散深層学習とは</h2>
+<ul>
+<li>深層学習は多くのデータを使用したり、パラメータ調整のために多くの時間を使用したりするため、高速な計算が求められる。</li>
+<li>複数の計算資源(ワーカー)を使用し、並列的にニューラルネットを構成することで、効率の良い学習を行いたい。</li>
+<li>データ並列化、モデル並列化、GPUによる高速技術は不可欠である。</li>
+</ul>
+<h3 id="データ並列化">データ並列化</h3>
+<p>親モデルを各ワーカーにこモデルとしてコピーをし、データを分割・各ワーカーごとにけいさんさせる方法。同期型と非同期型がある。</p>
+<h3 id="同期型と非同期型の比較">同期型と非同期型の比較</h3>
+<ul>
+<li>処理のスピードは、お互いのワーカーの計算を待たない非同期型の方が早い。</li>
+<li>非同期型は最新のモデルのパラメータを利用できないので、学習が不安定になりやすい。  -&gt; Stale Gradient Problem</li>
+<li>現在は同期型の方が精度が良いことが多いので、主流となっている。</li>
+</ul>
+<h3 id="モデル並列化">モデル並列化</h3>
+<p>親モデルを各ワーカーに分割し、それぞれのモデルを学習させる。全てのデータで学習が終わった後で、一つのモデルに復元させる手法。モデルが大きい時はモデル並列化を、データが大きい時はデータ並列化をすると効果的である。</p>
+<h2 id="gpuによる高速化">GPUによる高速化</h2>
+<ul>
+<li>
+<p>GPGPU (General-purpose on GPU)</p>
+<ul>
+<li>元々の使用目的であるグラフィック以外の用途で使用されるGPUの総称</li>
+</ul>
+</li>
+<li>
+<p>CPU</p>
+<ul>
+<li>高性能なコアが少数</li>
+<li>複雑で連続的な処理が得意</li>
+</ul>
+</li>
+<li>
+<p>GPU</p>
+<ul>
+<li>比較的低性能なコアが多数</li>
+<li>簡単な並列処理が得意</li>
+<li>ニューラルネットの学習は単純な行列演算が多いので、高速化が可能</li>
+</ul>
+</li>
+</ul>
+<h2 id="モデル軽量化">モデル軽量化</h2>
+<p>モデルの精度を維持しつつパラメータや演算回数を低減する手法の総称である。
+高メモリ負荷の場合は、高い演算性能が求められる場面であり、低メモリ低演算性能での利用が必要とされるIoTなどの場面で利用されている。
+代表的な手法として下記の3つがある</p>
+<ul>
+<li>量子化</li>
+<li>蒸留</li>
+<li>プルーニング</li>
+</ul>
+<h1 id="section4-応用モデル">Section4. 応用モデル</h1>
+<h2 id="モデルの手法mobilenets">モデルの手法:MobileNets</h2>
+<p>Efficient Convolutional Neural Networks for Mobile Vision Applications</p>
+<h2 id="提案手法">提案手法</h2>
+<ul>
+<li>ディープラーニングモデルは精度は良いが、その分ネットワークが深くなり計算量が増える。</li>
+<li>計算量が増えると、多くの計算リソースが必要で、お金がかかってしまう。</li>
+<li>ディープラーニングモデルの軽量化・高速化・高精度化を実現(その名の通りモバイルなネットワーク)</li>
+</ul>
+<p>一般的な畳み込みレイヤーは計算量が多いが、MobileNetsではDepthwise Convolution と Pointwise Convolution の組み合わせで軽量化を実現する。</p>
+<h3 id="depthwise-convolution">Depthwise Convolution</h3>
+<ul>
+<li>入力マップのチャネルごとに畳み込みを実施</li>
+<li>出力マップをそれらと結合(入力マップのチャネル数と同じになる)</li>
+<li>通常の畳み込みカーネルは全ての層にかかっていることを考えると計算量が大幅に削減可能</li>
+<li>各層ごとの畳み込みなので層間の関係性は全く考慮されない。通常はPW畳み込みとセットで使うことで解決</li>
+</ul>
+<h3 id="pointwise-convolution">Pointwise Convolution</h3>
+<ul>
+<li>1 x 1 convとも呼ばれる(正確には1 x 1 x c)</li>
+<li>入力マップのポイントごとに畳み込みを実施</li>
+<li>出力マップ(チャネル数)はフィルタ数分だけ作成可能(任意のサイズが指定可能)</li>
+</ul>
+<h5 id="考察mobilenetのアーキテクチャ">考察：MobileNetのアーキテクチャ</h5>
+<ul>
+<li>Depthwise Separable Convolutionという手法を用いて計算量を削減している。通常の畳込みが空間方向とチャネル方向の計算を同時に行うのに対して、Depthwise Separable ConvolutionではそれらをDepthwise ConvolutionとPointwise Convolutionと呼ばれる演算によって個別に行う。</li>
+<li>Depthwise Convolitionはチャネル毎に空間方向へ畳み込む。すなわち、チャネル毎にDK×DK×１のサイズのフィルターをそれぞれ用いて計算を行うため、その計算量は（い）となる。</li>
+<li>次にDepthwise Convolutionの出力をPointwise Convolutionによってチャネル方向に畳み込む。すなわち、出力チャネル毎に１×１×Mサイズのフィルターをそれぞれ用いて計算を行うため、その計算量は（う）となる。</li>
+</ul>
+<h5 id="カッコの中に関する回答">カッコの中に関する回答</h5>
+<p>（い）大幅に削減可能<br>
+（う）大幅に削減可能</p>
+<h2 id="densenet">DenseNet</h2>
+<p>Dense Blockという仕組みを用いた画像認識モデル。</p>
+<h1 id="section5-transformer">Section5. Transformer</h1>
+<h2 id="nn機械翻訳の問題点">NN機械翻訳の問題点</h2>
+<ul>
+<li>翻訳元の文の内容をひとつのベクトルで表現
+<ul>
+<li>文長が長くなると表現力が足りなくなる</li>
+</ul>
+</li>
+<li>文長と翻訳精度の関係性</li>
+</ul>
+<h2 id="transformerについて">Transformerについて</h2>
+<p>ここでは、Transformerについての基礎知識と構造について記載している。</p>
+<ul>
+<li>2017年6月に登場</li>
+<li>RNNを使わない</li>
+<li>必要なのはAttentionだけ</li>
+<li>当時のSOTAをはるかに少ない計算量で実現</li>
+<li>英仏 (3600万文) の学習を8GPUで3.5日で完了</li>
+</ul>
+<p>以下にTransformerの主要モジュールについて記載する。
+<figure class="center"><img src="/image/Tra.png" width="600" height="300"/><figcaption>
+            <h4>Transformerの主要モジュール</h4>
+        </figcaption>
+</figure>
+</p>
+<h3 id="multi-head-attention">Multi-Head attention</h3>
+<ul>
+<li>8個のScaled Dot-Product Attentionの出力をConcat</li>
+<li>それぞれのヘッドが異なる種類の情報を収集</li>
+</ul>
+<h3 id="decoder">Decoder</h3>
+<ul>
+<li>Encoderと同じく6層
+<ul>
+<li>各層で二種類の注意機構</li>
+<li>注意機構の仕組みはEncoderとほぼ同じ</li>
+</ul>
+</li>
+<li>自己注意機構
+<ul>
+<li>生成単語列の情報を収集
+<ul>
+<li>直下の層の出力へのアテンション</li>
+</ul>
+</li>
+<li>未来の情報を見ないようにマスク</li>
+</ul>
+</li>
+<li>Encoder-Decoder attention
+<ul>
+<li>入力文の情報を収集</li>
+<li>Encoderの出力へのアテンション</li>
+</ul>
+</li>
+</ul>
+<h3 id="add--norm">Add &amp; Norm</h3>
+<ul>
+<li>Add (Residual Connection)
+<ul>
+<li>入出力の差分を学習させる</li>
+<li>実装上は出力に入力をそのまま加算するだけ</li>
+<li>効果：学習・テストエラーの低減</li>
+</ul>
+</li>
+<li>Norm (Layer Normalization)
+<ul>
+<li>各層においてバイアスを除く活性化関数への入力を平均０、分散１に正則化</li>
+<li>効果：学習の高速化</li>
+</ul>
+</li>
+</ul>
+<h3 id="position-encoding">Position Encoding</h3>
+<p>RNNを用いないので単語列の語順情報を追加する必要がある。単語の位置情報をエンコード。</p>
+<h2 id="section5-実装演習">Section5 実装演習</h2>
+<p>下記参考サイトを用いて、Attention/Transformerの実装演習を行なった。本レポートでは、Transformerのモデル構築実装結果を記載する。</p>
+<p><a href="https://qiita.com/halhorn/items/c91497522be27bde17ce">https://qiita.com/halhorn/items/c91497522be27bde17ce</a></p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">SimpleAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    Attention の説明をするための、 Multi-head ではない単純な Attention です
+</span><span class="s1">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        コンストラクタです。
+</span><span class="s1">        :param depth: 隠れ層及び出力の次元
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;q_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;k_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;v_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_dense_layer&#39;</span><span class="p">)</span>
+
+     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        モデルの実行を行います。
+</span><span class="s1">        :param input: query のテンソル
+</span><span class="s1">        :param memory: query に情報を与える memory のテンソル
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, depth]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>  <span class="c1"># [batch_size, m_length, depth]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="c1"># ここで q と k の内積を取ることで、query と key の関連度のようなものを計算します。</span>
+        <span class="n">logit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, k_length]</span>
+
+        <span class="c1"># softmax を取ることで正規化します</span>
+        <span class="n">attention_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention_weight&#39;</span><span class="p">)</span>
+
+        <span class="c1"># 重みに従って value から情報を引いてきます</span>
+        <span class="n">attention_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">attention_weight</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, depth]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span><span class="p">(</span><span class="n">attention_output</span><span class="p">)</span>
+</code></pre></div><p>次に、MultiheadAttentionのクラスを作成。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">MultiheadAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    Multi-head Attention のモデルです。
+</span><span class="s1">    model = MultiheadAttention(
+</span><span class="s1">        hidden_dim=512,
+</span><span class="s1">        head_num=8,
+</span><span class="s1">        dropout_rate=0.1,
+</span><span class="s1">    )
+</span><span class="s1">    model(query, memory, mask, training=True)
+</span><span class="s1">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">head_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        コンストラクタです。
+</span><span class="s1">        :param hidden_dim: 隠れ層及び出力の次元
+</span><span class="s1">            head_num の倍数である必要があります。
+</span><span class="s1">        :param head_num: ヘッドの数
+</span><span class="s1">        :param dropout_rate: ドロップアウトする確率
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span> <span class="o">=</span> <span class="n">head_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;q_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;k_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;v_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_dense_layer&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_dropout_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">memory</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">attention_mask</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        モデルの実行を行います。
+</span><span class="s1">        :param input: query のテンソル
+</span><span class="s1">        :param memory: query に情報を与える memory のテンソル
+</span><span class="s1">        :param attention_mask: attention weight に適用される mask
+</span><span class="s1">            shape = [batch_size, 1, q_length, k_length] のものです。
+</span><span class="s1">            pad 等無視する部分が True となるようなものを指定してください。
+</span><span class="s1">        :param training: 学習時か推論時かのフラグ
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_dense_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, hidden_dim]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>  <span class="c1"># [batch_size, m_length, hidden_dim]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_dense_layer</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_head</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>  <span class="c1"># [batch_size, head_num, q_length, hidden_dim/head_num]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_head</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># [batch_size, head_num, m_length, hidden_dim/head_num]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># [batch_size, head_num, m_length, hidden_dim/head_num]</span>
+
+        <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span>
+        <span class="n">q</span> <span class="o">*=</span> <span class="n">depth</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span>  <span class="c1"># for scaled dot production</span>
+
+        <span class="c1"># ここで q と k の内積を取ることで、query と key の関連度のようなものを計算します。</span>
+        <span class="n">logit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># [batch_size, head_num, q_length, k_length]</span>
+        <span class="n">logit</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">attention_mask</span><span class="p">)</span> <span class="o">*</span> <span class="nb">input</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">min</span>  <span class="c1"># mask は pad 部分などが1, 他は0</span>
+
+        <span class="c1"># softmax を取ることで正規化します</span>
+        <span class="n">attention_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention_weight&#39;</span><span class="p">)</span>
+        <span class="n">attention_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention_dropout_layer</span><span class="p">(</span><span class="n">attention_weight</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="c1"># 重みに従って value から情報を引いてきます</span>
+        <span class="n">attention_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">attention_weight</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>  <span class="c1"># [batch_size, head_num, q_length, hidden_dim/head_num]</span>
+        <span class="n">attention_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_head</span><span class="p">(</span><span class="n">attention_output</span><span class="p">)</span>  <span class="c1"># [batch_size, q_length, hidden_dim]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span><span class="p">(</span><span class="n">attention_output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_split_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        入力の tensor の hidden_dim の次元をいくつかのヘッドに分割します。
+</span><span class="s1">        入力 shape: [batch_size, length, hidden_dim] の時
+</span><span class="s1">        出力 shape: [batch_size, head_num, length, hidden_dim//head_num]
+</span><span class="s1">        となります。
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;split_head&#39;</span><span class="p">):</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_combine_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        入力の tensor の各ヘッドを結合します。 _split_head の逆変換です。
+</span><span class="s1">        入力 shape: [batch_size, head_num, length, hidden_dim//head_num] の時
+</span><span class="s1">        出力 shape: [batch_size, length, hidden_dim]
+</span><span class="s1">        となります。
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;combine_head&#39;</span><span class="p">):</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">])</span>
+</code></pre></div><p>続いてEncoder。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    トークン列をベクトル列にエンコードする Encoder です。
+</span><span class="s1">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">vocab_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">hopping_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">head_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hopping_num</span> <span class="o">=</span> <span class="n">hopping_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span> <span class="o">=</span> <span class="n">head_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_embedding</span> <span class="o">=</span> <span class="n">TokenEmbedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_position_embedding</span> <span class="o">=</span> <span class="n">AddPositionalEncoding</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hopping_num</span><span class="p">):</span>
+            <span class="n">attention_layer</span> <span class="o">=</span> <span class="n">SelfAttention</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">head_num</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;self_attention&#39;</span><span class="p">)</span>
+            <span class="n">ffn_layer</span> <span class="o">=</span> <span class="n">FeedForwardNetwork</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ffn&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">ResidualNormalizationWrapper</span><span class="p">(</span><span class="n">attention_layer</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;self_attention_wrapper&#39;</span><span class="p">),</span>
+                <span class="n">ResidualNormalizationWrapper</span><span class="p">(</span><span class="n">ffn_layer</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ffn_wrapper&#39;</span><span class="p">),</span>
+            <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_normalization</span> <span class="o">=</span> <span class="n">LayerNormalization</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">self_attention_mask</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        モデルを実行します
+</span><span class="s1">
+</span><span class="s1">        :param input: shape = [batch_size, length]
+</span><span class="s1">        :param training: 学習時は True
+</span><span class="s1">        :return: shape = [batch_size, length, hidden_dim]
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="c1"># [batch_size, length, hidden_dim]</span>
+        <span class="n">embedded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">embedded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_position_embedding</span><span class="p">(</span><span class="n">embedded_input</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout_layer</span><span class="p">(</span><span class="n">embedded_input</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layers</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="p">):</span>
+            <span class="n">attention_layer</span><span class="p">,</span> <span class="n">ffn_layer</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;hopping_{i}&#39;</span><span class="p">):</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">attention_layer</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">self_attention_mask</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">ffn_layer</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="c1"># [batch_size, length, hidden_dim]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_normalization</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</code></pre></div><p>続いてDecode。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    エンコードされたベクトル列からトークン列を生成する Decoder です。
+</span><span class="s1">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">vocab_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">hopping_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">head_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hopping_num</span> <span class="o">=</span> <span class="n">hopping_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span> <span class="o">=</span> <span class="n">head_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_embedding</span> <span class="o">=</span> <span class="n">TokenEmbedding</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_position_embedding</span> <span class="o">=</span> <span class="n">AddPositionalEncoding</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">dropout_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hopping_num</span><span class="p">):</span>
+            <span class="n">self_attention_layer</span> <span class="o">=</span> <span class="n">SelfAttention</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">head_num</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;self_attention&#39;</span><span class="p">)</span>
+            <span class="n">enc_dec_attention_layer</span> <span class="o">=</span> <span class="n">MultiheadAttention</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">head_num</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;enc_dec_attention&#39;</span><span class="p">)</span>
+            <span class="n">ffn_layer</span> <span class="o">=</span> <span class="n">FeedForwardNetwork</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ffn&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">ResidualNormalizationWrapper</span><span class="p">(</span><span class="n">self_attention_layer</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;self_attention_wrapper&#39;</span><span class="p">),</span>
+                <span class="n">ResidualNormalizationWrapper</span><span class="p">(</span><span class="n">enc_dec_attention_layer</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;enc_dec_attention_wrapper&#39;</span><span class="p">),</span>
+                <span class="n">ResidualNormalizationWrapper</span><span class="p">(</span><span class="n">ffn_layer</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ffn_wrapper&#39;</span><span class="p">),</span>
+            <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_normalization</span> <span class="o">=</span> <span class="n">LayerNormalization</span><span class="p">()</span>
+        <span class="c1"># 注：本家ではここは TokenEmbedding の重みを転地したものを使っている</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">encoder_output</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">self_attention_mask</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">enc_dec_attention_mask</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+            <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        モデルを実行します
+</span><span class="s1">
+</span><span class="s1">        :param input: shape = [batch_size, length]
+</span><span class="s1">        :param training: 学習時は True
+</span><span class="s1">        :return: shape = [batch_size, length, hidden_dim]
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="c1"># [batch_size, length, hidden_dim]</span>
+        <span class="n">embedded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">embedded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_position_embedding</span><span class="p">(</span><span class="n">embedded_input</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_dropout_layer</span><span class="p">(</span><span class="n">embedded_input</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layers</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attention_block_list</span><span class="p">):</span>
+            <span class="n">self_attention_layer</span><span class="p">,</span> <span class="n">enc_dec_attention_layer</span><span class="p">,</span> <span class="n">ffn_layer</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;hopping_{i}&#39;</span><span class="p">):</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">self_attention_layer</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">self_attention_mask</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">enc_dec_attention_layer</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">encoder_output</span><span class="p">,</span>
+                                                <span class="n">attention_mask</span><span class="o">=</span><span class="n">enc_dec_attention_mask</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">ffn_layer</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_normalization</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>  <span class="c1"># [batch_size, length, hidden_dim]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dense_layer</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>  <span class="c1"># [batch_size, length, vocab_size]</span>
+</code></pre></div><p>最後に、Transformerモデルを構築する。</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">    Transformer モデルです。
+</span><span class="s1">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">vocab_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">hopping_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="n">head_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">vocab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hopping_num</span> <span class="o">=</span> <span class="n">hopping_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_num</span> <span class="o">=</span> <span class="n">head_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">max_length</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span>
+            <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span>
+            <span class="n">hopping_num</span><span class="o">=</span><span class="n">hopping_num</span><span class="p">,</span>
+            <span class="n">head_num</span><span class="o">=</span><span class="n">head_num</span><span class="p">,</span>
+            <span class="n">hidden_dim</span><span class="o">=</span><span class="n">hidden_dim</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">Decoder</span><span class="p">(</span>
+            <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span>
+            <span class="n">hopping_num</span><span class="o">=</span><span class="n">hopping_num</span><span class="p">,</span>
+            <span class="n">head_num</span><span class="o">=</span><span class="n">head_num</span><span class="p">,</span>
+            <span class="n">hidden_dim</span><span class="o">=</span><span class="n">hidden_dim</span><span class="p">,</span>
+            <span class="n">dropout_rate</span><span class="o">=</span><span class="n">dropout_rate</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;transformer&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s1">&#39;&#39;&#39;
+</span><span class="s1">        学習/推論のためのグラフを構築します。
+</span><span class="s1">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_training</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;is_training&#39;</span><span class="p">)</span>
+            <span class="c1"># [batch_size, max_length]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;encoder_input&#39;</span><span class="p">)</span>
+            <span class="c1"># [batch_size]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder_input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;decoder_input&#39;</span><span class="p">)</span>
+
+            <span class="n">logit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                <span class="n">encoder_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_input</span><span class="p">,</span>
+                <span class="n">decoder_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder_input</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># 入力は EOS を含めない</span>
+                <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_training</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">decoder_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_input</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>  <span class="c1"># 出力は BOS を含めない</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;metrics&#39;</span><span class="p">):</span>
+                <span class="n">xentropy</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">padded_cross_entropy_loss</span><span class="p">(</span>
+                    <span class="n">logit</span><span class="p">,</span> <span class="n">decoder_target</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">xentropy</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+
+                <span class="n">accuracies</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">padded_accuracy</span><span class="p">(</span><span class="n">logit</span><span class="p">,</span> <span class="n">decoder_target</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">accuracies</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;acc&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">decoder_input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">enc_attention_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_enc_attention_mask</span><span class="p">(</span><span class="n">encoder_input</span><span class="p">)</span>
+        <span class="n">dec_self_attention_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dec_self_attention_mask</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">)</span>
+
+        <span class="n">encoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span>
+            <span class="n">encoder_input</span><span class="p">,</span>
+            <span class="n">self_attention_mask</span><span class="o">=</span><span class="n">enc_attention_mask</span><span class="p">,</span>
+            <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">decoder_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span>
+            <span class="n">decoder_input</span><span class="p">,</span>
+            <span class="n">encoder_output</span><span class="p">,</span>
+            <span class="n">self_attention_mask</span><span class="o">=</span><span class="n">dec_self_attention_mask</span><span class="p">,</span>
+            <span class="n">enc_dec_attention_mask</span><span class="o">=</span><span class="n">enc_attention_mask</span><span class="p">,</span>
+            <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">decoder_output</span>
+
+    <span class="k">def</span> <span class="nf">_create_enc_attention_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;enc_attention_mask&#39;</span><span class="p">):</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">encoder_input</span><span class="p">))</span>
+            <span class="n">pad_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">encoder_input</span><span class="p">,</span> <span class="n">PAD_ID</span><span class="p">)</span>  <span class="c1"># [batch_size, m_length]</span>
+            <span class="c1"># shape broadcasting で [batch_size, head_num, (m|q)_length, m_length] になる</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">pad_array</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_create_dec_self_attention_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder_input</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;dec_self_attention_mask&#39;</span><span class="p">):</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">))</span>
+            <span class="n">pad_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">decoder_input</span><span class="p">,</span> <span class="n">PAD_ID</span><span class="p">)</span>  <span class="c1"># [batch_size, m_length]</span>
+            <span class="n">pad_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">pad_array</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+
+            <span class="n">autoregression_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">matrix_band_part</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># 下三角が False</span>
+            <span class="n">autoregression_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">autoregression_array</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">pad_array</span><span class="p">,</span> <span class="n">autoregression_array</span><span class="p">)</span> 
+</code></pre></div><h1 id="section6-物体検知セグメンテーション">Section6. 物体検知・セグメンテーション</h1>
+<p>広義の物体認識タスクである。</p>
+<ul>
+<li>入力
+<ul>
+<li>画像（カラー・モノクロは問わない）</li>
+</ul>
+</li>
+<li>出力
+*　分類・・・（画像に対し単一または複数の）クラスラベル
+<ul>
+<li>物体検知・・・Bounding Box</li>
+<li>意味領域分割・・・（各ピクセルに対し単一の）クラスラベル</li>
+<li>個体領域分割・・・（各ピクセルに対し単一の）クラスラベル</li>
+</ul>
+</li>
+</ul>
+<h2 id="代表的なデータセット">代表的なデータセット</h2>
+<ul>
+<li>VOC12</li>
+<li>ILSVRC17：ImageNet（21,841クラス/1400万枚以上）のサブセット</li>
+<li>MS COCO18：物体位置推定に対する新たな評価指標を提案</li>
+<li>OICOD18</li>
+</ul>
+<p>データセットの中には、Box/画像という指標がある。これは、1枚の画像あたりに、オブジェクトがいくつ写っているかを示す指標である。Box/画像が大きいと、部分的な重なり等も見られる日常生活のコンテキストに近いが、Box/画像が小さいと、アイコン的な映り日常感とはかけ離れやすい。<br>
+(ex.) フリーマーケットの出品画像については、1つの画像の中に1つの物体しかないので、学習にはBox/画像が小さいものを使用するべきである。</p>
+<h2 id="評価方法">評価方法</h2>
+<p>物体検出においてはクラスラベルだけでなく, 物体位置の予測精度も評価したいというモチベーションから、IoUという指標を使用している。</p>
+<figure class="center"><img src="/image/IoU.png" width="1200" height="250"/><figcaption>
+            <h4>IoU</h4>
+        </figcaption>
+</figure>
+
+<h2 id="物体検知のフレームワーク">物体検知のフレームワーク</h2>
+<h3 id="２段階検出器two-stage-detector">２段階検出器（Two-stage detector）</h3>
+<ul>
+<li>候補領域の検出とクラス推定を別々に行う</li>
+<li>相対的に精度が高い傾向・相対的に計算量が大きく推論も遅い傾向</li>
+</ul>
+<h3 id="１段階検出器one-stage-detector">１段階検出器（One-stage detector）</h3>
+<ul>
+<li>候補領域の検出とクラス推定を同時に行う</li>
+<li>相対的に精度が低い傾向</li>
+<li>相対的に計算量が小さく推論も早い傾向</li>
+</ul>
+<p><a href="https://www.researchgate.net/publication/332612704_Wellbore_Schematics_to_Structured_Data_Using_Artificial_Intelligence_Tools">https://www.researchgate.net/publication/332612704_Wellbore_Schematics_to_Structured_Data_Using_Artificial_Intelligence_Tools</a></p>
+<h2 id="ssd-single-shot-detector">SSD: Single Shot Detector</h2>
+<ol>
+<li>Default Boxを用意する</li>
+<li>Default Boxを変形し、conf.を出力する。</li>
+</ol>
+<figure class="center"><img src="/image/SSD.png" width="800" height="120"/><figcaption>
+            <h4>SSDネットワークアーキテクチャ</h4>
+        </figcaption>
+</figure>
+
+</article>
+
+        </main><footer id="footer">
+    Copyright © 2021 Yuki Ono
+</footer>
+</body>
+</html>

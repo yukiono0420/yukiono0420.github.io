@@ -1,0 +1,899 @@
+---
+title: "深層学習レポートDay4"
+date: 2021-07-06T20:02:34+09:00
+draft: false
+mathjax: true
+---
+
+# Section1. 強化学習
+## 1.1 強化学習とは
+
+強化学習おは、行動の結果として与えられる利益（報酬）を元に、行動を決定する原理を改善していく仕組みのことを、強化学習という。
+長期的に報酬を最大化できるように環境の中で行動を選択できるエージェントを作ることを目標とする機械学習の一分野である。
+
+## 1.2 強化学習の応用例
+マーケティング（会社の販売促進部）を応用例にあげる。
+
+* エージェント：プロフィールと購入履歴に基づいて、キャンペーンメールを送る顧客を決めるソフトウェアである。
+* 行動：顧客ごとに送信、非送信のふたつの行動を選ぶことになる。
+* 報酬：キャンペーンのコストという負の報酬とキャンペーンで生み出されると推測される売上という正の報酬を受ける。
+
+## 1.3 探索と利用のトレードオフ
+
+強化学習の場合、不完全な知識を元に行動しながら、データを収集し、最適な行動を見つけていく。過去のデータでベストとされる行動のみを常にとり続ければ、他にもっとベストな行動を見つけることはできない。これはつまり「探索が足りない状態」である。また、未知の行動のみを常にとり続ければ、過去の経験を活かすことができない。これはつまり「利用が足りない状態」である。「探索」と「利用」はトレードオフの関係にあることがわかる。
+
+## 1.4 強化学習イメージ
+{{< figure src="/image/強化学習イメージ.png" title="強化学習イメージ" class="center" width="470" height="300" >}}
+
+
+## 1.5 強化学習の差分
+強化学習と通常の教師あり・なし学習との違いを述べる。
+
+* 結論：目標が異なっている
+  * 教師なし・あり学習：データに含まれるパターンを見つけ出す及びそのデータから予測することが目標  
+  * 強化学習：優れた方策を見つけることが目標
+
+## 1.6 行動価値関数
+価値関数には2種類ある。
+* 状態価値関数：ある状態の価値に注目する関数
+* 行動価値関数：状態と価値を組み合わせた価値に注目する関数
+
+## 1.7 方策関数
+方策関数とは、方策ベースの強化学習手法において、ある状態でどのような行動をとるのかの確率を与える関数のことである。
+方策をモデル化して最適化する手法として、方策勾配法がある。
+\begin{eqnarray*}
+\theta^{(t+1)} = \theta^{(t)} + \epsilon \nabla J(\theta)
+\end{eqnarray*}
+ここで、$J$は方策の良さを表している。
+
+## 1.8 方策勾配法について
+定義方法は以下の通り。
+* 平均報酬
+* 割引報酬和  
+上記の定義に対応して、行動価値関数:Q(s,a)の定義を行い、方策勾配定理が成り立つ。
+{{< figure src="/image/勾配方策和.png" title="勾配方策定理" class="center" width="400" height="50" >}}
+
+
+### Section1. 考察 & 実装演習
+今回は強化学習を使用しているQ学習について、実装を行なった。
+参考：https://www.tcom242242.net/entry/ai-2/強化学習/【強化学習、入門】q学習_迷路を例に/
+
+#### Q学習とは
+Q学習は代表的な強化学習手法の１つである。Q学習では、各状態sに対する各行動aのQ値を保存しておくQテーブルQ(s,a)というテーブルを保持しています。Q学習ではこのQテーブルの値を以下の式によって更新します。
+
+{{< figure src="/image/Qテ.png" title="Qテーブル" class="center" width="600" height="300" >}}
+{{< figure src="/image/Q学習.png" title="Q学習" class="center" width="780" height="200" >}}
+
+#### 学習手順
+アルゴリズムは以下の順序で進んでいく。
+1. 現在の状態sで、Q(s,a)に従ってある行動aを選択し実行
+2. 環境から遷移先状態s′と報酬rを受け取る
+3. 得られた遷移先状態s′と報酬rを元に以下のようにQ(s,a)を更新
+    Q(s,a)←Q(s,a)+α(r+γmaxa′Q(s′,a′)−Q(s,a))
+4. ステップ1〜3を繰り返す
+
+#### 実装演習
+Q学習のエージェントとして、以下のソースコードを用意する。
+actメソッドでエージェントは行動選択をします。 ここではε-greedy手法によって行動選択をします。  
+observeメソッドで遷移先の状態と報酬を観測します。 ここでは報酬が観測したときにのみ学習するようにしています。  
+learnメソッドでQ値の更新をしています。  
+```python
+import copy
+import numpy as np
+
+class QLearningAgent:
+    """
+        Q学習 エージェント
+    """
+
+    def __init__(
+            self,
+            alpha=.2,
+            epsilon=.1,
+            gamma=.99,
+            actions=None,
+            observation=None):
+        self.alpha = alpha
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.reward_history = []
+        self.actions = actions
+        self.state = str(observation)
+        self.ini_state = str(observation)
+        self.previous_state = None
+        self.previous_action = None
+        self.q_values = self._init_q_values()
+
+    def _init_q_values(self):
+        """
+           Q テーブルの初期化
+        """
+        q_values = {}
+        q_values[self.state] = np.repeat(0.0, len(self.actions))
+        return q_values
+
+    def init_state(self):
+        """
+            状態の初期化
+        """
+        self.previous_state = copy.deepcopy(self.ini_state)
+        self.state = copy.deepcopy(self.ini_state)
+        return self.state
+
+    def act(self):
+        # ε-greedy選択
+        if np.random.uniform() < self.epsilon:  # random行動
+            action = np.random.randint(0, len(self.q_values[self.state]))
+        else:   # greedy 行動
+            action = np.argmax(self.q_values[self.state])
+
+        self.previous_action = action
+        return action
+
+    def observe(self, next_state, reward=None):
+        """
+            次の状態と報酬の観測
+        """
+        next_state = str(next_state)
+        if next_state not in self.q_values:  # 始めて訪れる状態であれば
+            self.q_values[next_state] = np.repeat(0.0, len(self.actions))
+
+        self.previous_state = copy.deepcopy(self.state)
+        self.state = next_state
+
+        if reward is not None:
+            self.reward_history.append(reward)
+            self.learn(reward)
+
+    def learn(self, reward):
+        """
+            Q値の更新
+        """
+        q = self.q_values[self.previous_state][self.previous_action]  # Q(s, a)
+        max_q = max(self.q_values[self.state])  # max Q(s')
+        # Q(s, a) = Q(s, a) + alpha*(r+gamma*maxQ(s')-Q(s, a))
+        self.q_values[self.previous_state][self.previous_action] = q + \
+            (self.alpha * (reward + (self.gamma * max_q) - q))
+```
+続いて、グリッドワールドクラスでは、 エージェントからの行動を受け取り、遷移先状態や報酬を返します。
+
+```python
+import copy
+
+class GridWorld:
+
+    def __init__(self):
+
+        self.filed_type = {
+            "N": 0,  # 通常
+            "G": 1,  # ゴール
+            "W": 2,  # 壁
+            "T": 3,  # トラップ
+        }
+        self.actions = {
+            "UP": 0,
+            "DOWN": 1,
+            "LEFT": 2,
+            "RIGHT": 3
+        }
+        self.map = [[3, 2, 0, 1],
+                    [0, 0, 0, 2],
+                    [0, 0, 2, 0],
+                    [2, 0, 2, 0],
+                    [0, 0, 0, 0]]
+
+        self.start_pos = 0, 4   # エージェントのスタート地点(x, y)
+        self.agent_pos = copy.deepcopy(self.start_pos)  # エージェントがいる地点
+
+    def step(self, action):
+        """
+            行動の実行
+            状態, 報酬、ゴールしたかを返却
+        """
+        to_x, to_y = copy.deepcopy(self.agent_pos)
+
+        # 移動可能かどうかの確認。移動不可能であれば、ポジションはそのままにマイナス報酬
+        if self._is_possible_action(to_x, to_y, action) == False:
+            return self.agent_pos, -1, False
+
+        if action == self.actions["UP"]:
+            to_y += -1
+        elif action == self.actions["DOWN"]:
+            to_y += 1
+        elif action == self.actions["LEFT"]:
+            to_x += -1
+        elif action == self.actions["RIGHT"]:
+            to_x += 1
+
+        is_goal = self._is_end_episode(to_x, to_y)  # エピソードの終了の確認
+        reward = self._compute_reward(to_x, to_y)
+        self.agent_pos = to_x, to_y
+        return self.agent_pos, reward, is_goal
+
+    def _is_end_episode(self, x, y):
+        """
+            x, yがエピソードの終了かの確認。
+        """
+        if self.map[y][x] == self.filed_type["G"]:      # ゴール
+            return True
+        elif self.map[y][x] == self.filed_type["T"]:    # トラップ
+            return True
+        else:
+            return False
+
+    def _is_wall(self, x, y):
+        """
+            x, yが壁かどうかの確認
+        """
+        if self.map[y][x] == self.filed_type["W"]:
+            return True
+        else:
+            return False
+
+    def _is_possible_action(self, x, y, action):
+        """
+            実行可能な行動かどうかの判定
+        """
+        to_x = x
+        to_y = y
+
+        if action == self.actions["UP"]:
+            to_y += -1
+        elif action == self.actions["DOWN"]:
+            to_y += 1
+        elif action == self.actions["LEFT"]:
+            to_x += -1
+        elif action == self.actions["RIGHT"]:
+            to_x += 1
+
+        if len(self.map) <= to_y or 0 > to_y:
+            return False
+        elif len(self.map[0]) <= to_x or 0 > to_x:
+            return False
+        elif self._is_wall(to_x, to_y):
+            return False
+
+        return True
+
+    def _compute_reward(self, x, y):
+        if self.map[y][x] == self.filed_type["N"]:
+            return 0
+        elif self.map[y][x] == self.filed_type["G"]:
+            return 100
+        elif self.map[y][x] == self.filed_type["T"]:
+            return -100
+
+    def reset(self):
+        self.agent_pos = self.start_pos
+        return self.start_pos
+```
+Q学習エージェントとグリッドワールドを組み合わせて、エージェントに学習させます。 以下のコードを実行するとエピソード毎に得られる報酬をプロットします。
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# 定数
+NB_EPISODE = 100    # エピソード数
+EPSILON = .1    # 探索率
+ALPHA = .1      # 学習率
+GAMMA = .90     # 割引率
+ACTIONS = np.arange(4)  # 行動の集合
+
+if __name__ == '__main__':
+    grid_env = GridWorld()  # grid worldの環境の初期化
+    ini_state = grid_env.start_pos  # 初期状態（エージェントのスタート地点の位置）
+    # エージェントの初期化
+    agent = QLearningAgent(
+        alpha=ALPHA,
+        gamma=GAMMA,
+        epsilon=EPSILON,  # 探索率
+        actions=ACTIONS,   # 行動の集合
+        observation=ini_state)  # Q学習エージェント
+    rewards = []    # 評価用報酬の保存
+    is_end_episode = False  # エージェントがゴールしてるかどうか？
+
+    # 実験
+    for episode in range(NB_EPISODE):
+        episode_reward = []  # 1エピソードの累積報酬
+        while(is_end_episode == False):    # ゴールするまで続ける
+            action = agent.act()  # 行動選択
+            state, reward, is_end_episode = grid_env.step(action)
+            agent.observe(state, reward)   # 状態と報酬の観測
+            episode_reward.append(reward)
+        rewards.append(np.sum(episode_reward))  # このエピソードの平均報酬を与える
+        state = grid_env.reset()  # 初期化
+        agent.observe(state)    # エージェントを初期位置に
+        is_end_episode = False
+
+    # 結果のプロット
+    plt.plot(np.arange(NB_EPISODE), rewards)
+    plt.xlabel("episode")
+    plt.ylabel("reward")
+    plt.savefig("result.jpg")
+    plt.show()
+```
+以下、実行結果である。エピソードごとの報酬結果がプロットされており、学習が進むにつれて高い報酬がもらえていることがわかる。
+{{< figure src="/image/Q結果.png" title="Q学習による結果" class="center" width="600" height="300" >}}
+
+
+
+# Section2. Alpha Go
+
+Alpha Goの学習Stepは以下のステップで行われる。
+
+1. 教師あり学習によるRollOutPolicyとPolicyNetの学習
+2. 強化学習によるPolicyNetの学習
+3. 強化学習によるValueNetの学習
+
+## PolicyNetの教師あり学習
+KGS Go Server（ネット囲碁対局サイト）の棋譜データから3000万局面分の教師を用意し、教師と同じ着手を予測できるよう学習を行った。具体的には、教師が着手した手を1とし残りを0とした19×19次元の配列を教師とし、それを分類問題として学習した。この学習で作成したPolicyNetは57%ほどの精度である。
+
+## PolicyNetの強化学習
+現状のPolicyNetとPolicyPoolからランダムに選択されたPolicyNetと対局シミュレーションを行い、その結果を用いて方策勾配法で学習を行った。PolicyPoolとは、PolicyNetの強化学習の過程を500Iteraionごとに記録し保存しておいたものである。現状のPolicyNet同士の対局ではなく、PolicyPoolに保存されているものとの対局を使用する理由は、対局に幅を持たせて過学習を防ごうというのが主である。この学習をminibatch size 128で1万回行った。
+
+## ValueNetの学習
+PolicyNetを使用して対局シミュレーションを行い、その結果の勝敗を教師として学習した。
+教師データ作成の手順は  
+1. まずSL PolicyNet(教師あり学習で作成したPolicyNet)でN手まで打つ。  
+2. N+1手目の手をランダムに選択し、その手で進めた局面をS（N+1）とする。  
+3. S（N+1）からRLPolicyNet（強化学習で作成したPolicyNet）で終局まで打ち、その勝敗報酬をRとする。
+
+S(N+1)とRを教師データ対とし、損失関数を平均二乗誤差とし、回帰問題として学習した。この学習をminibatch size 32で5000万回行ったN手までとN+1手からのPolicyNetを別々にしてある理由は、過学習を防ぐためであると論文では説明されている。
+
+
+# Section3. 軽量化・高速化技術
+## 分散深層学習とは
+* 深層学習は多くのデータを使用したり、パラメータ調整のために多くの時間を使用したりするため、高速な計算が求められる。
+* 複数の計算資源(ワーカー)を使用し、並列的にニューラルネットを構成することで、効率の良い学習を行いたい。
+* データ並列化、モデル並列化、GPUによる高速技術は不可欠である。
+
+### データ並列化
+親モデルを各ワーカーにこモデルとしてコピーをし、データを分割・各ワーカーごとにけいさんさせる方法。同期型と非同期型がある。
+
+### 同期型と非同期型の比較
+* 処理のスピードは、お互いのワーカーの計算を待たない非同期型の方が早い。  
+* 非同期型は最新のモデルのパラメータを利用できないので、学習が不安定になりやすい。  -> Stale Gradient Problem  
+* 現在は同期型の方が精度が良いことが多いので、主流となっている。
+
+### モデル並列化
+親モデルを各ワーカーに分割し、それぞれのモデルを学習させる。全てのデータで学習が終わった後で、一つのモデルに復元させる手法。モデルが大きい時はモデル並列化を、データが大きい時はデータ並列化をすると効果的である。
+
+## GPUによる高速化
+* GPGPU (General-purpose on GPU)  
+  * 元々の使用目的であるグラフィック以外の用途で使用されるGPUの総称
+
+* CPU
+  * 高性能なコアが少数
+  * 複雑で連続的な処理が得意
+
+* GPU
+  * 比較的低性能なコアが多数
+  * 簡単な並列処理が得意
+  * ニューラルネットの学習は単純な行列演算が多いので、高速化が可能
+
+## モデル軽量化
+モデルの精度を維持しつつパラメータや演算回数を低減する手法の総称である。
+高メモリ負荷の場合は、高い演算性能が求められる場面であり、低メモリ低演算性能での利用が必要とされるIoTなどの場面で利用されている。
+代表的な手法として下記の3つがある
+* 量子化
+* 蒸留
+* プルーニング
+
+# Section4. 応用モデル
+## モデルの手法:MobileNets
+Efficient Convolutional Neural Networks for Mobile Vision Applications
+
+## 提案手法
+* ディープラーニングモデルは精度は良いが、その分ネットワークが深くなり計算量が増える。
+* 計算量が増えると、多くの計算リソースが必要で、お金がかかってしまう。
+* ディープラーニングモデルの軽量化・高速化・高精度化を実現(その名の通りモバイルなネットワーク)
+
+一般的な畳み込みレイヤーは計算量が多いが、MobileNetsではDepthwise Convolution と Pointwise Convolution の組み合わせで軽量化を実現する。
+
+### Depthwise Convolution
+* 入力マップのチャネルごとに畳み込みを実施
+* 出力マップをそれらと結合(入力マップのチャネル数と同じになる)
+* 通常の畳み込みカーネルは全ての層にかかっていることを考えると計算量が大幅に削減可能
+* 各層ごとの畳み込みなので層間の関係性は全く考慮されない。通常はPW畳み込みとセットで使うことで解決
+
+### Pointwise Convolution
+* 1 x 1 convとも呼ばれる(正確には1 x 1 x c)
+* 入力マップのポイントごとに畳み込みを実施
+* 出力マップ(チャネル数)はフィルタ数分だけ作成可能(任意のサイズが指定可能)
+
+##### 考察：MobileNetのアーキテクチャ
+* Depthwise Separable Convolutionという手法を用いて計算量を削減している。通常の畳込みが空間方向とチャネル方向の計算を同時に行うのに対して、Depthwise Separable ConvolutionではそれらをDepthwise ConvolutionとPointwise Convolutionと呼ばれる演算によって個別に行う。
+* Depthwise Convolitionはチャネル毎に空間方向へ畳み込む。すなわち、チャネル毎にDK×DK×１のサイズのフィルターをそれぞれ用いて計算を行うため、その計算量は（い）となる。
+* 次にDepthwise Convolutionの出力をPointwise Convolutionによってチャネル方向に畳み込む。すなわち、出力チャネル毎に１×１×Mサイズのフィルターをそれぞれ用いて計算を行うため、その計算量は（う）となる。
+
+##### カッコの中に関する回答
+（い）大幅に削減可能  
+（う）大幅に削減可能
+
+
+## DenseNet
+Dense Blockという仕組みを用いた画像認識モデル。
+
+
+
+# Section5. Transformer
+## NN機械翻訳の問題点
+* 翻訳元の文の内容をひとつのベクトルで表現 
+  * 文長が長くなると表現力が足りなくなる 
+*  文長と翻訳精度の関係性
+
+## Transformerについて
+ここでは、Transformerについての基礎知識と構造について記載している。
+
+* 2017年6月に登場 
+* RNNを使わない 
+* 必要なのはAttentionだけ 
+* 当時のSOTAをはるかに少ない計算量で実現 
+* 英仏 (3600万文) の学習を8GPUで3.5日で完了
+
+以下にTransformerの主要モジュールについて記載する。
+{{< figure src="/image/Tra.png" title="Transformerの主要モジュール" class="center" width="600" height="300" >}}
+
+### Multi-Head attention
+* 8個のScaled Dot-Product Attentionの出力をConcat   
+* それぞれのヘッドが異なる種類の情報を収集
+
+### Decoder
+*  Encoderと同じく6層  
+   * 各層で二種類の注意機構 
+   * 注意機構の仕組みはEncoderとほぼ同じ 
+* 自己注意機構  
+   * 生成単語列の情報を収集 
+     * 直下の層の出力へのアテンション 
+   * 未来の情報を見ないようにマスク 
+* Encoder-Decoder attention 
+   * 入力文の情報を収集 
+   * Encoderの出力へのアテンション
+
+### Add & Norm
+* Add (Residual Connection) 
+  * 入出力の差分を学習させる 
+  * 実装上は出力に入力をそのまま加算するだけ 
+  * 効果：学習・テストエラーの低減 
+* Norm (Layer Normalization) 
+  * 各層においてバイアスを除く活性化関数への入力を平均０、分散１に正則化 
+  * 効果：学習の高速化
+
+### Position Encoding
+RNNを用いないので単語列の語順情報を追加する必要がある。単語の位置情報をエンコード。
+
+## Section5 実装演習
+下記参考サイトを用いて、Attention/Transformerの実装演習を行なった。本レポートでは、Transformerのモデル構築実装結果を記載する。
+  
+https://qiita.com/halhorn/items/c91497522be27bde17ce
+
+```python
+class SimpleAttention(tf.keras.models.Model):
+    '''
+    Attention の説明をするための、 Multi-head ではない単純な Attention です
+    '''
+
+    def __init__(self, depth: int, *args, **kwargs):
+        '''
+        コンストラクタです。
+        :param depth: 隠れ層及び出力の次元
+        '''
+        super().__init__(*args, **kwargs)
+        self.depth = depth
+
+        self.q_dense_layer = tf.keras.layers.Dense(depth, use_bias=False, name='q_dense_layer')
+        self.k_dense_layer = tf.keras.layers.Dense(depth, use_bias=False, name='k_dense_layer')
+        self.v_dense_layer = tf.keras.layers.Dense(depth, use_bias=False, name='v_dense_layer')
+        self.output_dense_layer = tf.keras.layers.Dense(depth, use_bias=False, name='output_dense_layer')
+
+     def call(self, input: tf.Tensor, memory: tf.Tensor) -> tf.Tensor:
+        '''
+        モデルの実行を行います。
+        :param input: query のテンソル
+        :param memory: query に情報を与える memory のテンソル
+        '''
+        q = self.q_dense_layer(input)  # [batch_size, q_length, depth]
+        k = self.k_dense_layer(memory)  # [batch_size, m_length, depth]
+        v = self.v_dense_layer(memory)
+
+        # ここで q と k の内積を取ることで、query と key の関連度のようなものを計算します。
+        logit = tf.matmul(q, k, transpose_b=True)  # [batch_size, q_length, k_length]
+
+        # softmax を取ることで正規化します
+        attention_weight = tf.nn.softmax(logit, name='attention_weight')
+
+        # 重みに従って value から情報を引いてきます
+        attention_output = tf.matmul(attention_weight, v)  # [batch_size, q_length, depth]
+        return self.output_dense_layer(attention_output)
+```
+次に、MultiheadAttentionのクラスを作成。
+```python
+class MultiheadAttention(tf.keras.models.Model):
+    '''
+    Multi-head Attention のモデルです。
+    model = MultiheadAttention(
+        hidden_dim=512,
+        head_num=8,
+        dropout_rate=0.1,
+    )
+    model(query, memory, mask, training=True)
+    '''
+
+    def __init__(self, hidden_dim: int, head_num: int, dropout_rate: float, *args, **kwargs):
+        '''
+        コンストラクタです。
+        :param hidden_dim: 隠れ層及び出力の次元
+            head_num の倍数である必要があります。
+        :param head_num: ヘッドの数
+        :param dropout_rate: ドロップアウトする確率
+        '''
+        super().__init__(*args, **kwargs)
+        self.hidden_dim = hidden_dim
+        self.head_num = head_num
+        self.dropout_rate = dropout_rate
+
+        self.q_dense_layer = tf.keras.layers.Dense(hidden_dim, use_bias=False, name='q_dense_layer')
+        self.k_dense_layer = tf.keras.layers.Dense(hidden_dim, use_bias=False, name='k_dense_layer')
+        self.v_dense_layer = tf.keras.layers.Dense(hidden_dim, use_bias=False, name='v_dense_layer')
+        self.output_dense_layer = tf.keras.layers.Dense(hidden_dim, use_bias=False, name='output_dense_layer')
+        self.attention_dropout_layer = tf.keras.layers.Dropout(dropout_rate)
+
+    def call(
+            self,
+            input: tf.Tensor,
+            memory: tf.Tensor,
+            attention_mask: tf.Tensor,
+            training: bool,
+    ) -> tf.Tensor:
+        '''
+        モデルの実行を行います。
+        :param input: query のテンソル
+        :param memory: query に情報を与える memory のテンソル
+        :param attention_mask: attention weight に適用される mask
+            shape = [batch_size, 1, q_length, k_length] のものです。
+            pad 等無視する部分が True となるようなものを指定してください。
+        :param training: 学習時か推論時かのフラグ
+        '''
+        q = self.q_dense_layer(input)  # [batch_size, q_length, hidden_dim]
+        k = self.k_dense_layer(memory)  # [batch_size, m_length, hidden_dim]
+        v = self.v_dense_layer(memory)
+
+        q = self._split_head(q)  # [batch_size, head_num, q_length, hidden_dim/head_num]
+        k = self._split_head(k)  # [batch_size, head_num, m_length, hidden_dim/head_num]
+        v = self._split_head(v)  # [batch_size, head_num, m_length, hidden_dim/head_num]
+
+        depth = self.hidden_dim // self.head_num
+        q *= depth ** -0.5  # for scaled dot production
+
+        # ここで q と k の内積を取ることで、query と key の関連度のようなものを計算します。
+        logit = tf.matmul(q, k, transpose_b=True)  # [batch_size, head_num, q_length, k_length]
+        logit += tf.to_float(attention_mask) * input.dtype.min  # mask は pad 部分などが1, 他は0
+
+        # softmax を取ることで正規化します
+        attention_weight = tf.nn.softmax(logit, name='attention_weight')
+        attention_weight = self.attention_dropout_layer(attention_weight, training=training)
+
+        # 重みに従って value から情報を引いてきます
+        attention_output = tf.matmul(attention_weight, v)  # [batch_size, head_num, q_length, hidden_dim/head_num]
+        attention_output = self._combine_head(attention_output)  # [batch_size, q_length, hidden_dim]
+        return self.output_dense_layer(attention_output)
+
+    def _split_head(self, x: tf.Tensor) -> tf.Tensor:
+        '''
+        入力の tensor の hidden_dim の次元をいくつかのヘッドに分割します。
+        入力 shape: [batch_size, length, hidden_dim] の時
+        出力 shape: [batch_size, head_num, length, hidden_dim//head_num]
+        となります。
+        '''
+        with tf.name_scope('split_head'):
+            batch_size, length, hidden_dim = tf.unstack(tf.shape(x))
+            x = tf.reshape(x, [batch_size, length, self.head_num, self.hidden_dim // self.head_num])
+            return tf.transpose(x, [0, 2, 1, 3])
+
+    def _combine_head(self, x: tf.Tensor) -> tf.Tensor:
+        '''
+        入力の tensor の各ヘッドを結合します。 _split_head の逆変換です。
+        入力 shape: [batch_size, head_num, length, hidden_dim//head_num] の時
+        出力 shape: [batch_size, length, hidden_dim]
+        となります。
+        '''
+        with tf.name_scope('combine_head'):
+            batch_size, _, length, _ = tf.unstack(tf.shape(x))
+            x = tf.transpose(x, [0, 2, 1, 3])
+            return tf.reshape(x, [batch_size, length, self.hidden_dim])
+```
+続いてEncoder。
+```python
+class Encoder(tf.keras.models.Model):
+    '''
+    トークン列をベクトル列にエンコードする Encoder です。
+    '''
+    def __init__(
+            self,
+            vocab_size: int,
+            hopping_num: int,
+            head_num: int,
+            hidden_dim: int,
+            dropout_rate: float,
+            max_length: int,
+            *args,
+            **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.hopping_num = hopping_num
+        self.head_num = head_num
+        self.hidden_dim = hidden_dim
+        self.dropout_rate = dropout_rate
+
+        self.token_embedding = TokenEmbedding(vocab_size, hidden_dim)
+        self.add_position_embedding = AddPositionalEncoding()
+        self.input_dropout_layer = tf.keras.layers.Dropout(dropout_rate)
+
+        self.attention_block_list: List[List[tf.keras.models.Model]] = []
+        for _ in range(hopping_num):
+            attention_layer = SelfAttention(hidden_dim, head_num, dropout_rate, name='self_attention')
+            ffn_layer = FeedForwardNetwork(hidden_dim, dropout_rate, name='ffn')
+            self.attention_block_list.append([
+                ResidualNormalizationWrapper(attention_layer, dropout_rate, name='self_attention_wrapper'),
+                ResidualNormalizationWrapper(ffn_layer, dropout_rate, name='ffn_wrapper'),
+            ])
+        self.output_normalization = LayerNormalization()
+
+    def call(
+            self,
+            input: tf.Tensor,
+            self_attention_mask: tf.Tensor,
+            training: bool,
+    ) -> tf.Tensor:
+        '''
+        モデルを実行します
+
+        :param input: shape = [batch_size, length]
+        :param training: 学習時は True
+        :return: shape = [batch_size, length, hidden_dim]
+        '''
+        # [batch_size, length, hidden_dim]
+        embedded_input = self.token_embedding(input)
+        embedded_input = self.add_position_embedding(embedded_input)
+        query = self.input_dropout_layer(embedded_input, training=training)
+
+        for i, layers in enumerate(self.attention_block_list):
+            attention_layer, ffn_layer = tuple(layers)
+            with tf.name_scope(f'hopping_{i}'):
+                query = attention_layer(query, attention_mask=self_attention_mask, training=training)
+                query = ffn_layer(query, training=training)
+        # [batch_size, length, hidden_dim]
+        return self.output_normalization(query)
+```
+続いてDecode。
+```python
+class Decoder(tf.keras.models.Model):
+    '''
+    エンコードされたベクトル列からトークン列を生成する Decoder です。
+    '''
+    def __init__(
+            self,
+            vocab_size: int,
+            hopping_num: int,
+            head_num: int,
+            hidden_dim: int,
+            dropout_rate: float,
+            max_length: int,
+            *args,
+            **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.hopping_num = hopping_num
+        self.head_num = head_num
+        self.hidden_dim = hidden_dim
+        self.dropout_rate = dropout_rate
+
+        self.token_embedding = TokenEmbedding(vocab_size, hidden_dim)
+        self.add_position_embedding = AddPositionalEncoding()
+        self.input_dropout_layer = tf.keras.layers.Dropout(dropout_rate)
+
+        self.attention_block_list: List[List[tf.keras.models.Model]] = []
+        for _ in range(hopping_num):
+            self_attention_layer = SelfAttention(hidden_dim, head_num, dropout_rate, name='self_attention')
+            enc_dec_attention_layer = MultiheadAttention(hidden_dim, head_num, dropout_rate, name='enc_dec_attention')
+            ffn_layer = FeedForwardNetwork(hidden_dim, dropout_rate, name='ffn')
+            self.attention_block_list.append([
+                ResidualNormalizationWrapper(self_attention_layer, dropout_rate, name='self_attention_wrapper'),
+                ResidualNormalizationWrapper(enc_dec_attention_layer, dropout_rate, name='enc_dec_attention_wrapper'),
+                ResidualNormalizationWrapper(ffn_layer, dropout_rate, name='ffn_wrapper'),
+            ])
+        self.output_normalization = LayerNormalization()
+        # 注：本家ではここは TokenEmbedding の重みを転地したものを使っている
+        self.output_dense_layer = tf.keras.layers.Dense(vocab_size, use_bias=False)
+
+    def call(
+            self,
+            input: tf.Tensor,
+            encoder_output: tf.Tensor,
+            self_attention_mask: tf.Tensor,
+            enc_dec_attention_mask: tf.Tensor,
+            training: bool,
+    ) -> tf.Tensor:
+        '''
+        モデルを実行します
+
+        :param input: shape = [batch_size, length]
+        :param training: 学習時は True
+        :return: shape = [batch_size, length, hidden_dim]
+        '''
+        # [batch_size, length, hidden_dim]
+        embedded_input = self.token_embedding(input)
+        embedded_input = self.add_position_embedding(embedded_input)
+        query = self.input_dropout_layer(embedded_input, training=training)
+
+        for i, layers in enumerate(self.attention_block_list):
+            self_attention_layer, enc_dec_attention_layer, ffn_layer = tuple(layers)
+            with tf.name_scope(f'hopping_{i}'):
+                query = self_attention_layer(query, attention_mask=self_attention_mask, training=training)
+                query = enc_dec_attention_layer(query, memory=encoder_output,
+                                                attention_mask=enc_dec_attention_mask, training=training)
+                query = ffn_layer(query, training=training)
+
+        query = self.output_normalization(query)  # [batch_size, length, hidden_dim]
+        return self.output_dense_layer(query)  # [batch_size, length, vocab_size]
+```
+最後に、Transformerモデルを構築する。
+```python
+class Transformer(tf.keras.models.Model):
+    '''
+    Transformer モデルです。
+    '''
+    def __init__(
+            self,
+            vocab_size: int,
+            hopping_num: int = 4,
+            head_num: int = 8,
+            hidden_dim: int = 512,
+            dropout_rate: float = 0.1,
+            max_length: int = 200,
+            *args,
+            **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.vocab_size = vocab_size
+        self.hopping_num = hopping_num
+        self.head_num = head_num
+        self.hidden_dim = hidden_dim
+        self.dropout_rate = dropout_rate
+        self.max_length = max_length
+
+        self.encoder = Encoder(
+            vocab_size=vocab_size,
+            hopping_num=hopping_num,
+            head_num=head_num,
+            hidden_dim=hidden_dim,
+            dropout_rate=dropout_rate,
+            max_length=max_length,
+        )
+        self.decoder = Decoder(
+            vocab_size=vocab_size,
+            hopping_num=hopping_num,
+            head_num=head_num,
+            hidden_dim=hidden_dim,
+            dropout_rate=dropout_rate,
+            max_length=max_length,
+        )
+
+    def build_graph(self, name='transformer') -> None:
+        '''
+        学習/推論のためのグラフを構築します。
+        '''
+        with tf.name_scope(name):
+            self.is_training = tf.placeholder(dtype=tf.bool, name='is_training')
+            # [batch_size, max_length]
+            self.encoder_input = tf.placeholder(dtype=tf.int32, shape=[None, None], name='encoder_input')
+            # [batch_size]
+            self.decoder_input = tf.placeholder(dtype=tf.int32, shape=[None, None], name='decoder_input')
+
+            logit = self.call(
+                encoder_input=self.encoder_input,
+                decoder_input=self.decoder_input[:, :-1],  # 入力は EOS を含めない
+                training=self.is_training,
+            )
+            decoder_target = self.decoder_input[:, 1:]  # 出力は BOS を含めない
+
+            self.prediction = tf.nn.softmax(logit, name='prediction')
+
+            with tf.name_scope('metrics'):
+                xentropy, weights = padded_cross_entropy_loss(
+                    logit, decoder_target, smoothing=0.05, vocab_size=self.vocab_size)
+                self.loss = tf.identity(tf.reduce_sum(xentropy) / tf.reduce_sum(weights), name='loss')
+
+                accuracies, weights = padded_accuracy(logit, decoder_target)
+                self.acc = tf.identity(tf.reduce_sum(accuracies) / tf.reduce_sum(weights), name='acc')
+
+    def call(self, encoder_input: tf.Tensor, decoder_input: tf.Tensor, training: bool) -> tf.Tensor:
+        enc_attention_mask = self._create_enc_attention_mask(encoder_input)
+        dec_self_attention_mask = self._create_dec_self_attention_mask(decoder_input)
+
+        encoder_output = self.encoder(
+            encoder_input,
+            self_attention_mask=enc_attention_mask,
+            training=training,
+        )
+        decoder_output = self.decoder(
+            decoder_input,
+            encoder_output,
+            self_attention_mask=dec_self_attention_mask,
+            enc_dec_attention_mask=enc_attention_mask,
+            training=training,
+        )
+        return decoder_output
+
+    def _create_enc_attention_mask(self, encoder_input: tf.Tensor):
+        with tf.name_scope('enc_attention_mask'):
+            batch_size, length = tf.unstack(tf.shape(encoder_input))
+            pad_array = tf.equal(encoder_input, PAD_ID)  # [batch_size, m_length]
+            # shape broadcasting で [batch_size, head_num, (m|q)_length, m_length] になる
+            return tf.reshape(pad_array, [batch_size, 1, 1, length])
+
+    def _create_dec_self_attention_mask(self, decoder_input: tf.Tensor):
+        with tf.name_scope('dec_self_attention_mask'):
+            batch_size, length = tf.unstack(tf.shape(decoder_input))
+            pad_array = tf.equal(decoder_input, PAD_ID)  # [batch_size, m_length]
+            pad_array = tf.reshape(pad_array, [batch_size, 1, 1, length])
+
+            autoregression_array = tf.logical_not(
+                tf.matrix_band_part(tf.ones([length, length], dtype=tf.bool), -1, 0))  # 下三角が False
+            autoregression_array = tf.reshape(autoregression_array, [1, 1, length, length])
+
+            return tf.logical_or(pad_array, autoregression_array) 
+```  
+
+
+
+# Section6. 物体検知・セグメンテーション
+広義の物体認識タスクである。
+* 入力
+  * 画像（カラー・モノクロは問わない）
+* 出力
+  *　分類・・・（画像に対し単一または複数の）クラスラベル
+  * 物体検知・・・Bounding Box
+  * 意味領域分割・・・（各ピクセルに対し単一の）クラスラベル
+  * 個体領域分割・・・（各ピクセルに対し単一の）クラスラベル
+
+## 代表的なデータセット
+* VOC12
+* ILSVRC17：ImageNet（21,841クラス/1400万枚以上）のサブセット
+* MS COCO18：物体位置推定に対する新たな評価指標を提案
+* OICOD18
+
+データセットの中には、Box/画像という指標がある。これは、1枚の画像あたりに、オブジェクトがいくつ写っているかを示す指標である。Box/画像が大きいと、部分的な重なり等も見られる日常生活のコンテキストに近いが、Box/画像が小さいと、アイコン的な映り日常感とはかけ離れやすい。  
+(ex.) フリーマーケットの出品画像については、1つの画像の中に1つの物体しかないので、学習にはBox/画像が小さいものを使用するべきである。
+
+## 評価方法
+物体検出においてはクラスラベルだけでなく, 物体位置の予測精度も評価したいというモチベーションから、IoUという指標を使用している。
+
+{{< figure src="/image/IoU.png" title="IoU" class="center" width="1200" height="250" >}}
+
+
+## 物体検知のフレームワーク
+### ２段階検出器（Two-stage detector）
+* 候補領域の検出とクラス推定を別々に行う 
+* 相対的に精度が高い傾向・相対的に計算量が大きく推論も遅い傾向
+
+### １段階検出器（One-stage detector）
+* 候補領域の検出とクラス推定を同時に行う 
+* 相対的に精度が低い傾向 
+* 相対的に計算量が小さく推論も早い傾向
+
+https://www.researchgate.net/publication/332612704_Wellbore_Schematics_to_Structured_Data_Using_Artificial_Intelligence_Tools
+
+## SSD: Single Shot Detector
+1. Default Boxを用意する
+2. Default Boxを変形し、conf.を出力する。
+
+{{< figure src="/image/SSD.png" title="SSDネットワークアーキテクチャ" class="center" width="800" height="120" >}}
+
+
+
+
+
+
